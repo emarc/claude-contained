@@ -192,6 +192,23 @@ exec /ms-playwright/chromium-*/chrome-linux/chrome --no-sandbox "$@"
 EOF
 RUN chmod +x /opt/google/chrome/chrome
 
+# ---- Chromium + ChromeDriver for Selenium/TestBench ------------------------
+# Selenium/TestBench need a chromedriver whose major version matches the browser.
+# Google's "Chrome for Testing" only publishes chromedriver for linux64 (x86-64)
+# — there is no Linux/arm64 build — so it cannot be used on Apple Silicon. Debian
+# ships a version-matched `chromium` + `chromium-driver` pair for both amd64 and
+# arm64, so we use those. Playwright's Chromium (driven by the MCP wrapper above)
+# is left untouched. Both `chrome` and `chromedriver` are exposed on PATH via
+# /usr/local/bin so tools find them without extra configuration.
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends chromium chromium-driver; \
+    rm -rf /var/lib/apt/lists/*; \
+    ln -sf "$(command -v chromium)" /usr/local/bin/chrome; \
+    ln -sf "$(command -v chromedriver)" /usr/local/bin/chromedriver; \
+    chrome --version; \
+    chromedriver --version
+
 # ---- Non-root user ----------------------------------------------------------
 RUN useradd -m -s /bin/bash dev \
   && mkdir -p /work \
