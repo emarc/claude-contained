@@ -13,8 +13,8 @@ ARG JBR_BASE_URL=https://cache-redirector.jetbrains.com/intellij-jbr
 ARG HOTSWAP_AGENT_VERSION=2.0.3
 
 # ---- Eclipse JDT Language Server pin ----------------------------------------
-ARG JDTLS_VERSION=1.40.0
-ARG JDTLS_TIMESTAMP=202409261450
+ARG JDTLS_VERSION=1.60.0
+ARG JDTLS_TIMESTAMP=202606262232
 
 # ---- System packages + custom packages (single apt-get update) -------------
 # Use glob trick: Dockerfile always exists, custom-packages.txt is optional
