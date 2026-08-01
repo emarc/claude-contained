@@ -24,6 +24,7 @@ RUN set -eux; \
     BASE_PACKAGES=" \
       git openssh-client ca-certificates ripgrep jq \
       curl bash xz-utils unzip tzdata \
+      build-essential pkg-config \
       python3 python3-pip python3-venv \
       iproute2 gosu socat \
       libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
@@ -137,6 +138,54 @@ RUN set -eux; \
     chmod +x /usr/local/bin/bun; \
     rm -rf /tmp/bun.zip /tmp/bun-linux-${BUN_ARCH}; \
     bun --version
+
+# ---- Install Rust toolchain (rustup) ---------------------------------------
+# Rust projects need a real toolchain (cargo build/test, cargo insta snapshots,
+# clippy, rustfmt, ...). Install rustup into a shared system location so every
+# user -- including the dynamic-UID dev user -- can use it. Linking needs a C
+# toolchain (cc/ld) -- provided by build-essential in the base packages above.
+# CARGO_HOME here holds
+# the rustup proxy binaries (cargo/rustc/...) and the default crate cache; at
+# runtime entrypoint.sh redirects CARGO_HOME to the persisted ~/.cargo mount
+# while these proxies stay reachable on PATH.
+ENV RUSTUP_HOME=/opt/rust/rustup \
+    CARGO_HOME=/opt/rust/cargo \
+    PATH=/opt/rust/cargo/bin:$PATH
+ARG RUST_VERSION=stable
+RUN set -eux; \
+    curl -fsSL https://sh.rustup.rs -o /tmp/rustup-init.sh; \
+    sh /tmp/rustup-init.sh -y --no-modify-path --profile minimal \
+      --default-toolchain "${RUST_VERSION}"; \
+    rm -f /tmp/rustup-init.sh; \
+    rustup component add clippy rustfmt; \
+    # World-writable so cargo can populate its cache even without the ~/.cargo mount
+    chmod -R a+rwX "$CARGO_HOME"; \
+    chmod -R a+rX "$RUSTUP_HOME"; \
+    rustc --version; \
+    cargo --version
+
+# ---- Install just (command runner) -----------------------------------------
+# Prebuilt static musl binary (works on both amd64 and arm64 Debian).
+ARG JUST_VERSION=latest
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "$ARCH" in \
+      arm64)  JUST_ARCH="aarch64" ;; \
+      amd64)  JUST_ARCH="x86_64" ;; \
+      *)      echo "Unsupported architecture: $ARCH"; exit 1 ;; \
+    esac; \
+    if [ "$JUST_VERSION" = "latest" ]; then \
+      JUST_VERSION=$(curl -fsSL https://api.github.com/repos/casey/just/releases/latest | grep -oP '"tag_name": "\K[^"]+'); \
+    fi; \
+    echo "Installing just ${JUST_VERSION}"; \
+    URL="https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${JUST_ARCH}-unknown-linux-musl.tar.gz"; \
+    curl -fL "$URL" -o /tmp/just.tar.gz; \
+    mkdir -p /tmp/just; \
+    tar -xzf /tmp/just.tar.gz -C /tmp/just; \
+    mv /tmp/just/just /usr/local/bin/just; \
+    chmod +x /usr/local/bin/just; \
+    rm -rf /tmp/just.tar.gz /tmp/just; \
+    just --version
 
 # ---- Language Servers + AI CLIs --------------------------------------------
 ARG AI_TOOLS_CACHE_BUST=stable
@@ -281,6 +330,15 @@ if [ -n "${HOST_HOME:-}" ]; then
 
   export HOME="${HOST_HOME}"
 
+  # Rust: persist the crate registry/cache to the bind-mounted ~/.cargo. The
+  # rustup proxy binaries live in /opt/rust/cargo/bin (already on PATH via the
+  # image ENV) and RUSTUP_HOME stays /opt/rust/rustup, so redirecting CARGO_HOME
+  # only moves the downloaded/registry cache, not the toolchain itself.
+  export CARGO_HOME="${HOST_HOME}/.cargo"
+  mkdir -p "${CARGO_HOME}/bin"
+  chown -R dev:dev "${CARGO_HOME}" 2>/dev/null || true
+  export PATH="${CARGO_HOME}/bin:$PATH"
+
   # Create container-side symlink to ~/.claude.json in shared directory
   # (Apple Containers can't bind-mount individual files, so we use symlinks)
   SHARED_CLAUDE_JSON="${HOST_HOME}/.claude-contained/.claude.json"
@@ -346,6 +404,7 @@ if [ "$(id -u)" = "0" ] && [ "${STAY_ROOT:-}" != "1" ]; then
     PATH="${USER_HOME}/.local/bin:$PATH" \
     HOME="$USER_HOME" \
     DISPLAY="$DISPLAY" \
+    ${CARGO_HOME:+CARGO_HOME="$CARGO_HOME"} \
     "$@"
 else
   # Also update PATH for root/non-gosu case

@@ -42,7 +42,7 @@ claude-contained -N .
 
 - **claude-docked** - Docker equivalent of claude-contained. **Must be kept in sync with claude-contained** to maintain feature parity. Both scripts share the same flag interface and behavior.
 
-- **Dockerfile** - Builds on Node 20 (Debian Bookworm). Installs JetBrains Runtime 25, HotswapAgent, AI CLI tools (Claude Code, OpenAI Codex, GitHub Copilot, Google Gemini CLI, Mistral Vibe), ripgrep, Python 3. Creates entrypoint.sh that configures `host.local` for host service access, matches host UID/GID, and sets up path parity.
+- **Dockerfile** - Builds on Node 20 (Debian Bookworm). Installs JetBrains Runtime 25, HotswapAgent, AI CLI tools (Claude Code, OpenAI Codex, GitHub Copilot, Google Gemini CLI, Mistral Vibe), the Rust toolchain (rustup: cargo/rustc/clippy/rustfmt) + `just`, ripgrep, Python 3. Creates entrypoint.sh that configures `host.local` for host service access, matches host UID/GID, and sets up path parity. Rustup lives in `/opt/rust` (shared, on PATH); entrypoint.sh redirects `CARGO_HOME` to the persisted `~/.cargo` mount so the crate registry survives across runs.
 
 - **.mcp.json** - MCP server configuration, notably enabling Figma Desktop MCP via `host.local:3845`.
 
@@ -51,7 +51,7 @@ claude-contained -N .
 - **Full path parity**: Directories mounted at their original host paths (e.g., `/Users/me/project` → `/Users/me/project`)
 - **HOME parity**: Container HOME matches host HOME for consistent behavior
 - **UID/GID matching**: Container user matches host user IDs for proper file permissions
-- **State sharing**: Tool configs (`~/.claude`, `~/.codex`, `~/.copilot`, `~/.gemini`, `~/.vibe`), Maven cache (`~/.m2`), and Vaadin state (`~/.vaadin`) bind-mounted from host
+- **State sharing**: Tool configs (`~/.claude`, `~/.codex`, `~/.copilot`, `~/.gemini`, `~/.vibe`), Maven cache (`~/.m2`), Vaadin state (`~/.vaadin`), and Cargo cache (`~/.cargo`) bind-mounted from host
 - **Shared skills**: `--share-skills=DIR` is opt-in and has no default. It requires a full path and mounts `DIR` as each tool's skills directory. Codex gets a nested mount for host `~/.codex/skills/.system` so built-ins remain visible while new installs write to `DIR`.
 - **SSH agent forwarding**: Disabled by default for security; enable with `-S/--ssh` flag (required for `git push` to SSH remotes)
 - Host services accessible via `host.local` hostname (resolved from container gateway IP)
