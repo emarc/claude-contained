@@ -219,6 +219,21 @@ RUN set -eux; \
     ln -sf /home/dev/.sdkman/candidates/maven/current/bin/mvn /usr/local/bin/mvn; \
     ln -sf /home/dev/.sdkman/candidates/jbang/current/bin/jbang /usr/local/bin/jbang
 
+# ---- Claude Code clipboard workaround --------------------------------------
+# Force the classic inline TUI renderer ("tui": "default") inside the container.
+# The newer fullscreen ("no-flicker") renderer (default since ~2.1.168) routes
+# copy-on-select only through OSC 52 and captures the mouse. Inside a container
+# attached to the host terminal there is no clipboard tool (no pbcopy/display),
+# OSC 52 is silently dropped by terminals like Terminal.app, and the mouse
+# capture also breaks native shift/option-drag selection -- so copying from
+# Claude stops working entirely. See anthropics/claude-code#66192.
+#
+# This is a managed-settings file (highest precedence, Linux path), so it is
+# container-scoped and never touches the host-mounted ~/.claude/settings.json.
+# Remove this once the upstream renderer regression is fixed.
+RUN mkdir -p /etc/claude-code \
+    && printf '%s\n' '{ "tui": "default" }' > /etc/claude-code/managed-settings.json
+
 # ---- Entrypoint (host.local setup + path parity) ---------------------------
 RUN cat <<'EOF' > /usr/local/bin/entrypoint.sh
 #!/bin/bash
