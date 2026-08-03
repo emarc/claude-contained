@@ -31,7 +31,7 @@ Behavior:
   - Additional directories are automatically added via --add-dir (claude, codex only).
   - Append :ro to an extra dir to mount it read-only (or :rw to force read-write).
     The working directory cannot be read-only.
-  - Tool configs (~/.claude, ~/.codex, ~/.copilot, ~/.gemini, ~/.vibe), Maven cache (~/.m2), and Vaadin state (~/.vaadin) are bind-mounted.
+  - Tool configs (~/.claude, ~/.codex, ~/.copilot, ~/.gemini, ~/.vibe), Maven cache (~/.m2), Vaadin state (~/.vaadin), and Cargo cache (~/.cargo) are bind-mounted.
   - --share-skills=DIR mounts DIR as each tool's skills directory.
     For Codex, ~/.codex/skills/.system is mounted back over DIR/.system
     so built-in skills remain visible while new installs write to DIR.
@@ -858,10 +858,11 @@ HOST_COPILOT_DIR="${HOST_HOME}/.copilot"
 HOST_VIBE_DIR="${HOST_HOME}/.vibe"
 HOST_M2_DIR="${HOST_HOME}/.m2"
 HOST_VAADIN_DIR="${HOST_HOME}/.vaadin"
+HOST_CARGO_DIR="${HOST_HOME}/.cargo"
 HOST_GITCONFIG="${HOST_HOME}/.gitconfig"
 
 # Ensure persistent directories exist on host
-mkdir -p "${HOST_CLAUDE_DIR}" "${HOST_CODEX_DIR}" "${HOST_COPILOT_DIR}" "${HOST_GEMINI_DIR}" "${HOST_VIBE_DIR}" "${HOST_M2_DIR}" "${HOST_VAADIN_DIR}"
+mkdir -p "${HOST_CLAUDE_DIR}" "${HOST_CODEX_DIR}" "${HOST_COPILOT_DIR}" "${HOST_GEMINI_DIR}" "${HOST_VIBE_DIR}" "${HOST_M2_DIR}" "${HOST_VAADIN_DIR}" "${HOST_CARGO_DIR}"
 
 # Build container args
 CLAUDE_MEMORY="${CLAUDE_MEMORY:-8g}"
@@ -911,6 +912,7 @@ container_argv=(
   --mount "type=bind,src=${HOST_VIBE_DIR},dst=${HOST_HOME}/.vibe"
   --mount "type=bind,src=${HOST_M2_DIR},dst=${HOST_HOME}/.m2"
   --mount "type=bind,src=${HOST_VAADIN_DIR},dst=${HOST_HOME}/.vaadin"
+  --mount "type=bind,src=${HOST_CARGO_DIR},dst=${HOST_HOME}/.cargo"
   --mount "type=bind,src=${main_host},dst=${main_host}"
 )
 
