@@ -42,7 +42,11 @@ claude-contained -N .
 
 - **claude-docked** - Docker equivalent of claude-contained. **Must be kept in sync with claude-contained** to maintain feature parity. Both scripts share the same flag interface and behavior.
 
-- **Dockerfile** - Builds on Node 20 (Debian Bookworm). Installs JetBrains Runtime 25, HotswapAgent, AI CLI tools (Claude Code, OpenAI Codex, GitHub Copilot, Google Gemini CLI, Mistral Vibe), the Rust toolchain (rustup: cargo/rustc/clippy/rustfmt) + `just`, ripgrep, Python 3. Creates entrypoint.sh that configures `host.local` for host service access, matches host UID/GID, and sets up path parity. Rustup lives in `/opt/rust` (shared, on PATH); entrypoint.sh redirects `CARGO_HOME` to the persisted `~/.cargo` mount so the crate registry survives across runs.
+- **Dockerfile** - Builds on Node 20 (Debian Bookworm). Installs JetBrains Runtime 25, HotswapAgent, AI CLI tools (Claude Code, OpenAI Codex, GitHub Copilot, Google Gemini CLI, Mistral Vibe), the Rust toolchain (rustup: cargo/rustc/clippy/rustfmt) + `just`, ripgrep, Python 3. Copies in entrypoint.sh which configures `host.local` for host service access, matches host UID/GID, and sets up path parity. Rustup lives in `/opt/rust` (shared, on PATH); entrypoint.sh redirects `CARGO_HOME` to the persisted `~/.cargo` mount so the crate registry survives across runs. **Size limit**: Apple Containers rejects Dockerfiles over 16 KiB (apple/container#735), which is why entrypoint.sh and hotswap-agent.properties live as separate COPYed files rather than inline heredocs — keep new file content out of the Dockerfile itself.
+
+- **entrypoint.sh** - Container entrypoint, COPYed into the image at `/usr/local/bin/entrypoint.sh`. Handles `host.local` resolution, optional host port forwarding (`HOST_FORWARD_PORTS`), UID/GID matching, HOME/path parity, `.claude.json` symlinking, git config protection, Xvfb startup, and dropping to the dev user via gosu.
+
+- **hotswap-agent.properties** - HotswapAgent global config, COPYed into the image under `/opt/jbr/lib/hotswap/`.
 
 - **.mcp.json** - MCP server configuration, notably enabling Figma Desktop MCP via `host.local:3845`.
 
