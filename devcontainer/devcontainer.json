@@ -29,6 +29,9 @@
   "remoteUser": "dev",
   "overrideCommand": true,
 
+  // entrypoint.sh is bypassed here, so link the image's gh extensions manually
+  "postCreateCommand": "mkdir -p \"$HOME/.local/share/gh/extensions\"; for e in /opt/gh/gh/extensions/*; do [ -d \"$e\" ] && ln -sfn \"$e\" \"$HOME/.local/share/gh/extensions/$(basename \"$e\")\"; done; true",
+
   "customizations": {
     "vscode": {
       "extensions": [
