@@ -175,6 +175,29 @@ RUN set -eux; \
     rm -rf /tmp/just.tar.gz /tmp/just; \
     just --version
 
+# ---- GitHub CLI + extensions ------------------------------------------------
+# Debian's gh is years behind, so install the upstream release. Extensions are
+# baked into /opt/gh; gh only loads them from $HOME/.local/share/gh/extensions,
+# which is container-local, so entrypoint.sh symlinks them into HOME at startup.
+ARG GH_VERSION=latest
+ARG GH_EXTENSIONS="github/gh-stack"
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    if [ "$GH_VERSION" = "latest" ]; then \
+      GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -oP '"tag_name": "v\K[^"]+'); \
+    fi; \
+    URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${ARCH}.tar.gz"; \
+    curl -fL "$URL" -o /tmp/gh.tar.gz; \
+    mkdir -p /tmp/gh; \
+    tar -xzf /tmp/gh.tar.gz -C /tmp/gh --strip-components=1; \
+    install -m 0755 /tmp/gh/bin/gh /usr/local/bin/gh; \
+    rm -rf /tmp/gh.tar.gz /tmp/gh; \
+    for ext in $GH_EXTENSIONS; do XDG_DATA_HOME=/opt/gh gh extension install "$ext"; done; \
+    chmod -R a+rX /opt/gh; \
+    gh --version; \
+    # Not `gh extension list`: that needs auth, which the build has no token for
+    [ -z "$GH_EXTENSIONS" ] || ls -d /opt/gh/gh/extensions/*
+
 # ---- Language Servers + AI CLIs --------------------------------------------
 ARG AI_TOOLS_CACHE_BUST=stable
 RUN set -eux; \

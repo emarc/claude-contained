@@ -87,6 +87,19 @@ if [ -n "${HOST_HOME:-}" ]; then
   if [ ! -e "${HOST_HOME}/.local/bin/claude" ]; then
     ln -sf /opt/claude/claude "${HOST_HOME}/.local/bin/claude"
   fi
+  # Expose the image-provided gh CLI extensions (e.g. `gh stack`). gh only looks
+  # in $HOME/.local/share/gh/extensions, which is container-local and starts out
+  # empty, so symlink the baked-in ones there. Extensions the user installs at
+  # runtime land in the same directory and are left alone.
+  if [ -d /opt/gh/gh/extensions ]; then
+    mkdir -p "${HOST_HOME}/.local/share/gh/extensions" 2>/dev/null || true
+    for _ext in /opt/gh/gh/extensions/*; do
+      [ -d "${_ext}" ] || continue
+      _ext_dst="${HOST_HOME}/.local/share/gh/extensions/$(basename "${_ext}")"
+      [ -e "${_ext_dst}" ] || ln -s "${_ext}" "${_ext_dst}"
+    done
+  fi
+
   chown -R dev:dev "${HOST_HOME}/.local" 2>/dev/null || true
 fi
 
