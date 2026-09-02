@@ -24,7 +24,8 @@ RUN set -eux; \
     BASE_PACKAGES=" \
       git openssh-client ca-certificates ripgrep jq \
       curl bash xz-utils unzip tzdata \
-      build-essential pkg-config \
+      build-essential pkg-config libssl-dev \
+      cmake clang libclang-dev zlib1g-dev libsqlite3-dev \
       python3 python3-pip python3-venv \
       iproute2 gosu socat \
       libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
@@ -116,7 +117,7 @@ RUN set -eux; \
       *)      echo "Unsupported architecture: $ARCH"; exit 1 ;; \
     esac; \
     if [ "$BUN_VERSION" = "latest" ]; then \
-      BUN_VERSION=$(curl -fsSL https://api.github.com/repos/oven-sh/bun/releases/latest | grep -oP '"tag_name": "bun-v\K[^"]+'); \
+      BUN_VERSION=$(curl -fsSL https://api.github.com/repos/oven-sh/bun/releases/latest | grep -oP '"tag_name":\s*"bun-v\K[^"]+'); \
     fi; \
     echo "Installing Bun v${BUN_VERSION}"; \
     URL="https://github.com/oven-sh/bun/releases/download/bun-v${BUN_VERSION}/bun-linux-${BUN_ARCH}.zip"; \
@@ -148,7 +149,9 @@ RUN set -eux; \
     rustup component add clippy rustfmt; \
     # World-writable so cargo can populate its cache even without the ~/.cargo mount
     chmod -R a+rwX "$CARGO_HOME"; \
-    chmod -R a+rX "$RUSTUP_HOME"; \
+    # Writable too: entrypoint.sh symlinks these toolchains into the persisted
+    # ~/.rustup, and `rustup component add` writes into the toolchain directory
+    chmod -R a+rwX "$RUSTUP_HOME"; \
     rustc --version; \
     cargo --version
 
@@ -163,7 +166,7 @@ RUN set -eux; \
       *)      echo "Unsupported architecture: $ARCH"; exit 1 ;; \
     esac; \
     if [ "$JUST_VERSION" = "latest" ]; then \
-      JUST_VERSION=$(curl -fsSL https://api.github.com/repos/casey/just/releases/latest | grep -oP '"tag_name": "\K[^"]+'); \
+      JUST_VERSION=$(curl -fsSL https://api.github.com/repos/casey/just/releases/latest | grep -oP '"tag_name":\s*"\K[^"]+'); \
     fi; \
     echo "Installing just ${JUST_VERSION}"; \
     URL="https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${JUST_ARCH}-unknown-linux-musl.tar.gz"; \
@@ -175,6 +178,19 @@ RUN set -eux; \
     rm -rf /tmp/just.tar.gz /tmp/just; \
     just --version
 
+# ---- Rust lint/format helpers (typos, taplo, dylint) ------------------------
+# Logic lives in install-rust-tools.sh to keep this Dockerfile under the 16 KiB
+# limit Apple Containers enforces. dylint is a slow source build, so this layer
+# sits above the cheaper tool installs below.
+ARG TYPOS_VERSION=latest
+ARG TAPLO_VERSION=latest
+ARG DYLINT_VERSION=latest
+ARG NEXTEST_VERSION=latest
+COPY install-rust-tools.sh /tmp/install-rust-tools.sh
+RUN set -eux; \
+    bash /tmp/install-rust-tools.sh; \
+    rm -f /tmp/install-rust-tools.sh
+
 # ---- GitHub CLI + extensions ------------------------------------------------
 # Debian's gh is years behind, so install the upstream release. Extensions are
 # baked into /opt/gh; gh only loads them from $HOME/.local/share/gh/extensions,
@@ -184,7 +200,7 @@ ARG GH_EXTENSIONS="github/gh-stack"
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     if [ "$GH_VERSION" = "latest" ]; then \
-      GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -oP '"tag_name": "v\K[^"]+'); \
+      GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -oP '"tag_name":\s*"v\K[^"]+'); \
     fi; \
     URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${ARCH}.tar.gz"; \
     curl -fL "$URL" -o /tmp/gh.tar.gz; \
