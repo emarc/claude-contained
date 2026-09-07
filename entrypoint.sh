@@ -58,14 +58,56 @@ if [ -n "${HOST_HOME:-}" ]; then
 
   export HOME="${HOST_HOME}"
 
-  # Rust: persist the crate registry/cache to the bind-mounted ~/.cargo. The
-  # rustup proxy binaries live in /opt/rust/cargo/bin (already on PATH via the
-  # image ENV) and RUSTUP_HOME stays /opt/rust/rustup, so redirecting CARGO_HOME
-  # only moves the downloaded/registry cache, not the toolchain itself.
+  # Rust: ~/.cargo and ~/.rustup are mounted from container-only, arch-tagged
+  # directories under ~/.claude-contained (see the launcher) -- both hold Linux
+  # binaries and must never be shared with a macOS host's own Rust install.
   export CARGO_HOME="${HOST_HOME}/.cargo"
   mkdir -p "${CARGO_HOME}/bin"
+  # rustup exits 1 after a successful `toolchain install` unless it finds itself
+  # under CARGO_HOME ("error: rustup is not installed at ..."), which would fail
+  # anything shelling out to it (dylint, rust-toolchain.toml auto-install). Seed
+  # the proxy; rustup fills in the cargo/rustc/... proxies next to it itself.
+  [ -e "${CARGO_HOME}/bin/rustup" ] || ln -s /opt/rust/cargo/bin/rustup "${CARGO_HOME}/bin/rustup"
   chown -R dev:dev "${CARGO_HOME}" 2>/dev/null || true
   export PATH="${CARGO_HOME}/bin:$PATH"
+
+  # The image's RUSTUP_HOME (/opt/rust/rustup) is root-owned and read-only, so a
+  # rust-toolchain.toml pin or dylint's nightly driver had nowhere to install.
+  # Point RUSTUP_HOME at the persisted ~/.rustup mount and symlink the image's
+  # baked toolchains into it -- rustup treats a symlinked toolchain dir as the
+  # real thing, so the multi-GB stable toolchain is shared, not copied, and only
+  # newly installed toolchains take up space in the mount.
+  if [ -d "${HOST_HOME}/.rustup" ]; then
+    export RUSTUP_HOME="${HOST_HOME}/.rustup"
+    mkdir -p "${RUSTUP_HOME}/toolchains"
+    if [ ! -e "${RUSTUP_HOME}/settings.toml" ]; then
+      cp /opt/rust/rustup/settings.toml "${RUSTUP_HOME}/settings.toml"
+    fi
+    for tc in /opt/rust/rustup/toolchains/*; do
+      [ -d "$tc" ] || continue
+      link="${RUSTUP_HOME}/toolchains/$(basename "$tc")"
+      [ -e "$link" ] || ln -s "$tc" "$link"
+    done
+    # Drop links left over from an older image (e.g. a different RUST_VERSION),
+    # and re-seed settings.toml if its default toolchain went away with them
+    for link in "${RUSTUP_HOME}"/toolchains/*; do
+      if [ -L "$link" ] && [ ! -e "$link" ]; then rm -f "$link"; fi
+    done
+    rustup_default=$(sed -n 's/^default_toolchain = "\(.*\)"/\1/p' "${RUSTUP_HOME}/settings.toml" 2>/dev/null || true)
+    if [ -n "$rustup_default" ] && [ ! -e "${RUSTUP_HOME}/toolchains/${rustup_default}" ]; then
+      cp /opt/rust/rustup/settings.toml "${RUSTUP_HOME}/settings.toml"
+    fi
+    # -h so the symlinks are retargeted, not the image files they point at
+    chown -h dev:dev "${RUSTUP_HOME}" "${RUSTUP_HOME}/toolchains" \
+      "${RUSTUP_HOME}/settings.toml" "${RUSTUP_HOME}"/toolchains/* 2>/dev/null || true
+  fi
+
+  # dylint rebuilds a per-toolchain driver into ~/.dylint_drivers, which is
+  # container-local and empty on every start; point it at the persisted
+  # ~/.cargo mount so the driver is built once instead of once per session.
+  export DYLINT_DRIVER_PATH="${CARGO_HOME}/dylint-drivers"
+  mkdir -p "${DYLINT_DRIVER_PATH}"
+  chown -R dev:dev "${DYLINT_DRIVER_PATH}" 2>/dev/null || true
 
   # Create container-side symlink to ~/.claude.json in shared directory
   # (Apple Containers can't bind-mount individual files, so we use symlinks)
@@ -141,6 +183,8 @@ if [ "$(id -u)" = "0" ] && [ "${STAY_ROOT:-}" != "1" ]; then
     HOME="$USER_HOME" \
     DISPLAY="$DISPLAY" \
     ${CARGO_HOME:+CARGO_HOME="$CARGO_HOME"} \
+    ${RUSTUP_HOME:+RUSTUP_HOME="$RUSTUP_HOME"} \
+    ${DYLINT_DRIVER_PATH:+DYLINT_DRIVER_PATH="$DYLINT_DRIVER_PATH"} \
     "$@"
 else
   # Also update PATH for root/non-gosu case
