@@ -1,5 +1,8 @@
 # AI Contained
 
+> [!WARNING]
+> Currently investigating a potential history corruption issue with Codex. Do not run Codex Desktop and codex in claude-contained simultaniously until resolved. Maybe even avoid multiple codex sessions in claude-code.
+
 Seamlessly run CLI coding agents (Claude, Codex, Gemini, Vibe) inside an [Apple Container](https://github.com/apple/container) or [Docker](https://www.docker.com) container with persistent state. 
 
 The main goal is to provide a seamless experience; `alias claude='claude-contained --yolo'` and now `claude` runs in a container with your settings. Only `.` or the folders you specify are shared with the container.
