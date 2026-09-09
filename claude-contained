@@ -167,9 +167,9 @@ find_build_context() {
   return 1
 }
 
-run_rebuild() {
+run_rebuild() (
   local mode="$1"
-  local build_context refresh_token
+  local build_context refresh_token build_file source_bytes build_bytes
 
   build_context="$(find_build_context)" || {
     echo "Rebuild requires a repo-adjacent install with Dockerfile access." >&2
@@ -177,11 +177,30 @@ run_rebuild() {
     exit 1
   }
 
+  # Keep the build request below Apple Container's transport limit (#735).
+  # Preserve parser directives and shebangs. Once a heredoc starts, retain
+  # everything: comment-looking lines may be literal file contents.
+  build_file="$(mktemp "${TMPDIR:-/tmp}/claude-contained-Dockerfile.XXXXXX")"
+  trap 'rm -f "$build_file"' EXIT
+  awk '
+    /<</ { literal = 1 }
+    !literal && /^#[[:space:]]/ && !/^#[[:space:]]*(syntax|escape|check)[[:space:]]*=/ { next }
+    { print }
+  ' "$build_context/Dockerfile" > "$build_file"
+  source_bytes="$(wc -c < "$build_context/Dockerfile" | tr -d '[:space:]')"
+  build_bytes="$(wc -c < "$build_file" | tr -d '[:space:]')"
+  echo "Apple Container Dockerfile: ${source_bytes} -> ${build_bytes} bytes after comment trimming." >&2
+  # Advisory headroom, not an exact protocol limit: request overhead varies.
+  if (( build_bytes >= 14 * 1024 )); then
+    echo "Warning: trimmed Dockerfile is still near Apple Container's reported ~16 KiB build-request limit." >&2
+    echo "If you see 'Stream unexpectedly closed' or 'Transport became inactive', move inline scripts into COPYed files or shorten the Dockerfile. See https://github.com/apple/container/issues/735" >&2
+  fi
+
   case "$mode" in
     tools)
       refresh_token="$(date -u +%Y%m%d%H%M%S)"
       echo "Rebuilding claude-contained image (AI tools refresh)..." >&2
-      if container build --build-arg "AI_TOOLS_CACHE_BUST=${refresh_token}" -t claude-contained:latest "$build_context"; then
+      if container build --file "$build_file" --build-arg "AI_TOOLS_CACHE_BUST=${refresh_token}" -t claude-contained:latest "$build_context"; then
         return 0
       fi
       echo "AI tools refresh failed. Retrying with full rebuild..." >&2
@@ -190,7 +209,7 @@ run_rebuild() {
       ;;
     full)
       echo "Rebuilding claude-contained image (full fresh rebuild)..." >&2
-      container build --pull --no-cache -t claude-contained:latest "$build_context"
+      container build --file "$build_file" --pull --no-cache -t claude-contained:latest "$build_context"
       ;;
     *)
       echo "Unknown rebuild mode: $mode" >&2
@@ -198,7 +217,7 @@ run_rebuild() {
       exit 1
       ;;
   esac
-}
+)
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   show_help

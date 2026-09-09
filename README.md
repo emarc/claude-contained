@@ -164,6 +164,10 @@ claude-docked --rebuild=full .
 
 `full` forces a clean rebuild of the entire image and pulls the latest base image. Rebuild requires the launcher script to run from this repo checkout, or via a symlink into it, so it can find the local `Dockerfile`.
 
+Apple Container rebuilds use a temporary Dockerfile with ordinary leading `# ` comments removed to avoid its build-request size limit. Parser directives, shebangs, and everything from the first heredoc onward are preserved. The original Dockerfile and build context stay intact; Docker builds do not need this workaround.
+
+The launcher reports the original and trimmed byte counts and warns if the trimmed file is still 14 KiB or larger. This is advisory headroom below the [reported ~16 KiB limit](https://github.com/apple/container/issues/735), not a guaranteed cutoff: request overhead varies. If a build immediately fails with `Stream unexpectedly closed` or `Transport became inactive`, try moving inline scripts into separate `COPY`ed files or shortening the Dockerfile further. These errors can also have other causes. Both launchers retain the same rebuild modes; only Apple Container needs trimming and this warning.
+
 ## Node.js Projects (node_modules Overlay)
 
 When running on macOS, the container is Linux — but `node_modules` often contains platform-specific native binaries (e.g., esbuild, swc, sharp) that are compiled for the host architecture. macOS `arm64` binaries won't work inside a Linux `aarch64` container, even though the CPU architecture is the same, because the OS ABI differs.

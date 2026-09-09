@@ -171,6 +171,8 @@ find_build_context() {
 }
 
 run_rebuild() {
+  # Apple Container's launcher trims comments for its transport size limit.
+  # Docker does not need that workaround; keep the rebuild modes in sync.
   local mode="$1"
   local build_context refresh_token
 
