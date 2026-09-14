@@ -970,6 +970,22 @@ def ignore_dangling_links(directory, names):
             if (Path(directory) / name).is_symlink() and not (Path(directory) / name).exists()]
 
 
+def is_codex_runtime_link(path, store):
+    # Codex's arg0 dispatch helpers point at the npm-installed Linux binary.
+    # These absolute container paths are normally dangling on the macOS host.
+    # Match both location and raw target; never exempt tmp or state links wholesale.
+    relative = path.relative_to(store).parts
+    if (len(relative) != 4 or relative[:2] != ('tmp', 'arg0')
+            or not re.fullmatch(r'codex-arg0[A-Za-z0-9]+', relative[2])
+            or relative[3] not in ('apply_patch', 'applypatch', 'codex-execve-wrapper', 'codex-linux-sandbox')):
+        return False
+    return re.fullmatch(
+        r'/usr/local/lib/node_modules/@openai/codex/node_modules/'
+        r'@openai/codex-linux-(?:arm64|x64)/vendor/'
+        r'(?:aarch64|x86_64)-unknown-linux-musl/bin/codex',
+        os.readlink(path)) is not None
+
+
 def prepare_store(base, folder):
     project = base / 'projects' / key_for(folder)
     identity = {'format': 1, 'canonical_path': folder}
@@ -1003,7 +1019,7 @@ def prepare_store(base, folder):
     for parent, dirs, files in os.walk(store):
         for name in dirs + files:
             p = Path(parent) / name
-            if p.is_symlink() and not p.resolve().is_relative_to(store):
+            if p.is_symlink() and not is_codex_runtime_link(p, store) and not p.resolve().is_relative_to(store):
                 fail(f'Contained Codex home has an external symlink: {p}')
     return store
 

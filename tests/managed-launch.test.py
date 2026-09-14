@@ -111,6 +111,55 @@ class ManagedTests(unittest.TestCase):
         self.assertTrue((store/'skills/live/SKILL.md').exists())
         self.assertFalse((store/'skills/dead').exists())
 
+    def test_runtime_helpers_allow_relaunch_for_both_tools_and_runtimes(self):
+        base = self.home/'.claude-contained/codex'
+        with patch.dict(os.environ, HOME=str(self.home)):
+            store = m.prepare_store(base, str(self.project))
+        helpers = store/'tmp/arg0/codex-arg0CqZPYT'
+        helpers.mkdir(parents=True)
+        target = '/usr/local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/bin/codex'
+        for name in ('apply_patch', 'applypatch', 'codex-execve-wrapper', 'codex-linux-sandbox'):
+            (helpers/name).symlink_to(target)
+        (store/'state_5.sqlite').write_text('retained database')
+        (store/'sessions').mkdir()
+        (store/'sessions/turn.jsonl').write_text('retained transcript')
+        (self.root/'release').touch()
+        for launcher in ('claude-contained', 'claude-docked'):
+            for tool in ('codex', 'claude'):
+                with self.subTest(launcher=launcher, tool=tool):
+                    result = self.launch(launcher, '-t', tool, self.project)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((store/'state_5.sqlite').read_text(), 'retained database')
+        self.assertEqual((store/'sessions/turn.jsonl').read_text(), 'retained transcript')
+        self.assertEqual(os.readlink(helpers/'apply_patch'), target)
+
+    def test_runtime_exception_does_not_allow_external_state_or_arbitrary_links(self):
+        base = self.home/'.claude-contained/codex'
+        with patch.dict(os.environ, HOME=str(self.home)):
+            store = m.prepare_store(base, str(self.project))
+        binary = '/usr/local/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/bin/codex'
+        cases = [
+            ('sessions', str(self.home/'.codex/sessions')),
+            ('state_5.sqlite', str(self.home/'.codex/state_5.sqlite')),
+            ('tmp', '/external/tmp'),
+            ('tmp/arg0', '/external/arg0'),
+            ('tmp/arg0/codex-arg0ABC', '/external/helpers'),
+            ('tmp/arg0/codex-arg0ABC/apply_patch', str(self.home/'.codex/state_5.sqlite')),
+            ('tmp/arg0/codex-arg0ABC/apply_patch', binary + '/../../other'),
+            ('tmp/arg0/codex-arg0ABC/state_5.sqlite', binary),
+            ('sessions/apply_patch', binary),
+        ]
+        for relative, target in cases:
+            with self.subTest(relative=relative, target=target):
+                link = store/relative
+                link.parent.mkdir(parents=True, exist_ok=True)
+                link.symlink_to(target)
+                try:
+                    with self.assertRaisesRegex(RuntimeError, 'external symlink'):
+                        m.prepare_store(base, str(self.project))
+                finally:
+                    link.unlink()
+
     def test_config_overrides_rejected_by_host_and_container(self):
         identity = self.root/'identity.json'
         identity.write_text(json.dumps({'home': str(self.home), 'runtime': 'docker'}))
