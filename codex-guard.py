@@ -21,7 +21,7 @@ def config_overrides(args):
         elif arg.startswith('--config='):
             yield arg[9:].split('=', 1)[0].strip().strip('"')
         elif arg.startswith('-c') and not arg.startswith('--'):
-            yield arg[2:].split('=', 1)[0].strip().strip('"')
+            yield arg[2:].removeprefix('=').split('=', 1)[0].strip().strip('"')
 
 
 def main():

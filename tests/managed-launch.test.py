@@ -14,6 +14,9 @@ REPO = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location('managed', REPO / 'managed-launch.py')
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
+guard_spec = importlib.util.spec_from_file_location('guard', REPO / 'codex-guard.py')
+guard = importlib.util.module_from_spec(guard_spec)
+guard_spec.loader.exec_module(guard)
 
 FAKE = '''#!/usr/bin/env python3
 import json,os,sys,time
@@ -107,6 +110,41 @@ class ManagedTests(unittest.TestCase):
             store=m.prepare_store(self.home/'.claude-contained/codex',str(self.project))
         self.assertTrue((store/'skills/live/SKILL.md').exists())
         self.assertFalse((store/'skills/dead').exists())
+
+    def test_config_overrides_rejected_by_host_and_container(self):
+        identity = self.root/'identity.json'
+        identity.write_text(json.dumps({'home': str(self.home), 'runtime': 'docker'}))
+        def guard_path(path):
+            return identity if path == '/run/claude-contained/identity.json' else Path(path)
+        for key in ('sqlite_home', 'codex_home'):
+            for args in (['-c', key+'="/x"'], ['--config', key+'="/x"'],
+                         ['--config='+key+'="/x"'], ['-c'+key+'="/x"'],
+                         ['-c='+key+'="/x"']):
+                with self.subTest(args=args):
+                    with self.assertRaisesRegex(RuntimeError, 'overrides are not supported'):
+                        m.validate_tool_args('codex', args)
+                    with patch.object(guard, 'Path', side_effect=guard_path), \
+                         patch.object(guard.sys, 'argv', ['codex', *args]):
+                        with self.assertRaisesRegex(RuntimeError, 'state-location overrides are disabled'):
+                            guard.main()
+
+    def test_seed_copies_valid_relative_symlinks(self):
+        skills = self.home/'.codex/skills'
+        (skills/'real').mkdir(parents=True)
+        (skills/'real/SKILL.md').write_text('skill content')
+        (skills/'alias').symlink_to('real', target_is_directory=True)
+        (skills/'real/copy.md').symlink_to('SKILL.md')
+        (skills/'real/dead').symlink_to('missing')
+        with patch.dict(os.environ, HOME=str(self.home)):
+            store = m.prepare_store(self.home/'.claude-contained/codex', str(self.project))
+        for name in ('real', 'alias'):
+            copied = store/'skills'/name
+            self.assertFalse(copied.is_symlink())
+            self.assertEqual((copied/'SKILL.md').read_text(), 'skill content')
+            self.assertEqual((copied/'copy.md').read_text(), 'skill content')
+            self.assertFalse((copied/'copy.md').is_symlink())
+            self.assertFalse((copied/'dead').is_symlink())
+            self.assertFalse((copied/'dead').exists())
 
     def test_attach_adopts_owner_folders_unless_given_explicitly(self):
         extra=self.root/'extra';extra.mkdir()
