@@ -123,10 +123,12 @@ A host lock reserves each folder for one container across both runtimes. Differe
 folders can run concurrently. Starting any agent for an occupied folder offers to
 start it in the existing container, with **explicit confirmation**, including with
 `--yolo`. Decline or EOF cancels. The requested tool, arguments, and working folder
-are preserved. Repeat the original container setup options (extra mounts/access
-modes, shared skills, ports, SSH, worktree/node options, memory, image, and GitHub
-token); incompatible options are refused rather than ignored. Use the owning
-runtime for mixed-runtime attachment.
+are preserved. The confirmation lists the folders the owning container shares,
+and the attached agent gets all of them; a folder or access mode the owner does
+not already share is refused. The other setup options (shared skills, ports, SSH,
+worktree/node options, memory, image, and GitHub token) must match the original;
+incompatible options are refused rather than ignored. Use the owning runtime for
+mixed-runtime attachment.
 
 - **Apple Containers:** independent Codex sessions can run concurrently in the
   owning container. Codex prevents simultaneous writing to the same conversation.

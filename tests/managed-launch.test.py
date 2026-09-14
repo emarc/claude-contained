@@ -75,8 +75,8 @@ class ManagedTests(unittest.TestCase):
     def command(self, launcher, *args):
         return ['bash', str(self.bin / launcher), *map(str,args)]
 
-    def start(self, launcher='claude-contained', *args):
-        proc = subprocess.Popen(self.command(launcher, '-t', 'codex', *args, self.project),
+    def start(self, launcher='claude-contained', *args, extra=()):
+        proc = subprocess.Popen(self.command(launcher, '-t', 'codex', *args, self.project, *extra),
                                 env=self.env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         self.children.append(proc)
         for _ in range(200):
@@ -95,6 +95,31 @@ class ManagedTests(unittest.TestCase):
         self.assertNotEqual(m.key_for(str(other)),m.key_for(str(self.project)))
         with self.assertRaises(RuntimeError): m.validate_mount_sources(str(self.home),[str(self.home)],[])
         with self.assertRaises(RuntimeError): m.validate_tool_args('codex',['--cd=/elsewhere'])
+        for override in (['-c','sqlite_home="/x"'],['--config=sqlite_home=/x'],['-csqlite_home=/x'],['-c','history.sqlite_home=/x']):
+            with self.assertRaises(RuntimeError): m.validate_tool_args('codex',override)
+        m.validate_tool_args('codex',['why is CODEX_HOME or sqlite_home unset?','-c','model="gpt"'])
+        m.validate_tool_args('claude',['-c','sqlite_home=/x'])
+
+    def test_seed_ignores_dangling_symlinks(self):
+        skills=self.home/'.codex/skills';skills.mkdir(parents=True)
+        (skills/'dead').symlink_to('/nonexistent');(skills/'live').mkdir();(skills/'live/SKILL.md').write_text('x')
+        with patch.dict(os.environ,HOME=str(self.home)):
+            store=m.prepare_store(self.home/'.claude-contained/codex',str(self.project))
+        self.assertTrue((store/'skills/live/SKILL.md').exists())
+        self.assertFalse((store/'skills/dead').exists())
+
+    def test_attach_adopts_owner_folders_unless_given_explicitly(self):
+        extra=self.root/'extra';extra.mkdir()
+        self.start('claude-contained','-a','Named',extra=[extra])
+        for args in (['-a','Named','-t','codex'],['-t','claude',self.project]):
+            result=self.launch('claude-contained',*args)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertIn('Shared folders: '+str(self.project)+' (rw), '+str(extra)+' (rw)',result.stderr)
+        other=self.root/'other';other.mkdir()
+        for args in ([self.project,other],[self.project,str(extra)+':ro']):
+            result=self.launch('claude-contained','-t','claude',*args)
+            self.assertNotEqual(result.returncode,0)
+            self.assertIn('does not share',result.stderr)
 
     def test_seed_copies_setup_only_and_retains_history(self):
         native=self.home/'.codex';native.mkdir()

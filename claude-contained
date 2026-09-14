@@ -862,9 +862,12 @@ def canonical(path):
     # realpath alone preserves case aliases on case-insensitive macOS volumes.
     parts = []
     while path != path.parent:
-        matches = [n for n in os.listdir(path.parent)
-                   if n.casefold() == path.name.casefold() and os.path.samefile(path.parent / n, path)]
-        parts.append(path.name if path.name in matches else matches[0])
+        try:
+            matches = [n for n in os.listdir(path.parent)
+                       if n.casefold() == path.name.casefold() and os.path.samefile(path.parent / n, path)]
+        except OSError:
+            matches = []  # unreadable ancestor: keep the resolved spelling
+        parts.append(path.name if path.name in matches or not matches else matches[0])
         path = path.parent
     value = str(path.joinpath(*reversed(parts)))
     if any(c in value for c in '\n\r,:'):
@@ -936,13 +939,29 @@ def validate_mount_sources(home, paths, skills):
                 fail(f'Mount {p} would expose native Codex state or contained stores. Select a project/skills subdirectory outside {q}.')
 
 
+def config_overrides(args):
+    """Yield the keys of Codex -c/--config overrides; prompts and other text are ignored."""
+    pending = False
+    for arg in args:
+        if pending:
+            pending = False
+            yield arg.split('=', 1)[0].strip().strip('"\'')
+        elif arg in ('-c', '--config'):
+            pending = True
+        elif arg.startswith('--config='):
+            yield arg[9:].split('=', 1)[0].strip().strip('"\'')
+        elif arg.startswith('-c') and not arg.startswith('--'):
+            yield arg[2:].split('=', 1)[0].strip().strip('"\'')
+
+
 def validate_tool_args(tool, args):
     if tool != 'codex':
         return
     for arg in args:
         if arg in ('-C', '--cd') or arg.startswith(('--cd=', '-C')):
             fail('Pass the working folder to the launcher, not Codex --cd/-C, so history ownership matches it.')
-        if 'sqlite_home' in arg or 'CODEX_HOME' in arg or 'CODEX_SQLITE_HOME' in arg:
+    for key in config_overrides(args):
+        if key.rsplit('.', 1)[-1] in ('sqlite_home', 'codex_home'):
             fail('Contained Codex database/home overrides are not supported.')
 
 
@@ -967,7 +986,7 @@ def prepare_store(base, folder):
         for name in ('auth.json', 'config.toml', 'AGENTS.md', 'skills', 'plugins'):
             source = native / name
             if source.is_dir():
-                shutil.copytree(source, temporary / name, symlinks=False)
+                shutil.copytree(source, temporary / name, symlinks=False, ignore_dangling_symlinks=True)
             elif source.is_file():
                 shutil.copyfile(source, temporary / name)
         os.replace(temporary, store)
@@ -1026,6 +1045,14 @@ def ready(record):
 def attach(record, request):
     if request['runtime'] != record['runtime']:
         fail(f"Folder is owned by {record['runtime']} container {record['name']}; use that runtime to attach.")
+    # Attaching joins the owner's mounts. Adopt them when the request asks for
+    # nothing beyond them; a folder the owner does not mount cannot be shared.
+    owned = set(zip(record['setup']['paths'], record['setup']['modes']))
+    missing = [f'{p} ({m})' for p, m in zip(request['setup']['paths'], request['setup']['modes']) if (p, m) not in owned]
+    if missing:
+        fail('Existing container does not share: ' + ', '.join(missing) + '. Omit them or stop the owner first.')
+    request['setup']['paths'] = record['setup']['paths']
+    request['setup']['modes'] = record['setup']['modes']
     if request['setup'] != record['setup']:
         differences = [k for k in request['setup'] if request['setup'][k] != record['setup'].get(k)]
         fail('Existing container has incompatible launch options: ' + ', '.join(differences) + '. Repeat the original setup options or stop the owner first.')
@@ -1035,7 +1062,9 @@ def attach(record, request):
                            capture_output=True, text=True, timeout=20)
         if p.returncode:
             fail(p.stderr.strip() or 'Docker permits only one Codex process per folder.')
+    shared = ', '.join(f'{p} ({m})' for p, m in zip(record['setup']['paths'], record['setup']['modes']))
     print(f"Folder {record['folder']} already uses {record['runtime']} container {record['name']}.\n"
+          f'Shared folders: {shared}\n'
           'Attachment starts another process sharing its filesystem and lifecycle.\n'
           'It can be terminated when the original container session exits.', file=sys.stderr)
     try:
@@ -1183,6 +1212,9 @@ if __name__ == '__main__':
     except (RuntimeError, ValueError, OSError, subprocess.TimeoutExpired) as exc:
         print('error: ' + str(exc), file=sys.stderr)
         sys.exit(1)
+    except KeyboardInterrupt:
+        print('\nerror: cancelled.', file=sys.stderr)
+        sys.exit(130)
 # END EMBEDDED MANAGED LAUNCH
 CC_MANAGED_PY
 )" "container" "$0" "$tool" "$shell_mode" "$yolo_mode" "$attach_mode" "$attach_name" \

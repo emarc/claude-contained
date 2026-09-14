@@ -331,6 +331,9 @@ RUN mkdir -p /etc/claude-code \
 # Kept as a separate file: Apple Containers rejects Dockerfiles > 16 KiB
 # (apple/container#735), so the script cannot live inline as a heredoc.
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# Identical copy under a second name: the launchers start containers with this
+# entrypoint so an old image (which lacks it) fails fast instead of running
+# without the Codex guard identity.
 COPY entrypoint.sh /usr/local/bin/managed-entrypoint.sh
 COPY codex-guard.py /usr/local/bin/codex-guard.py
 RUN mv /usr/local/bin/codex /usr/local/bin/cc-codex-real \
