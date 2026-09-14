@@ -1,6 +1,13 @@
 # AI Contained
 
-> **Upgrading:** rebuild the image and remove old `aic-` containers before using these launchers. Codex now uses separate, persistent history per folder. Existing native history is preserved but is not imported.
+> [!WARNING]
+> **Breaking change (September 2026): Codex state is now isolated per folder.** Sharing the native
+> `~/.codex` with containers could silently lose Codex history, because file locks do not work across
+> the container filesystem boundary. Contained Codex now gets its own persistent history per working
+> folder, and a folder can only be used by one container at a time. Rebuild the image and remove old
+> `aic-` containers before using the updated launchers. Existing native history is preserved but is
+> not imported. See [Why Codex state is isolated](#why-codex-state-is-isolated) for what changed and how it
+> differs between tools and runtimes.
 
 Seamlessly run CLI coding agents (Claude, Codex, Gemini, Vibe) inside an [Apple Container](https://github.com/apple/container) or [Docker](https://www.docker.com) container with persistent state.
 
@@ -99,6 +106,56 @@ Config directories are mounted regardless of which tool you run. Codex’s in-co
 - Rust state is persisted in container-specific directories — `~/.claude-contained/cargo-linux-<arch>` is mounted as `~/.cargo` and `~/.claude-contained/rustup-linux-<arch>` as `~/.rustup` — so crates, extra toolchains (`rust-toolchain.toml` pins, dylint's nightly) and dylint drivers survive across runs. Your host `~/.cargo`/`~/.rustup` are left alone: they hold macOS binaries that cannot run in the Linux container, and rustup rewrites the proxies in `~/.cargo/bin` whenever it installs a toolchain. The image's stable toolchain is symlinked into the mount rather than copied, so only newly installed toolchains use space there.
 - Git worktrees are detected; main repository is included for full git access
 - If a mounted main repository has linked worktrees outside the mounted directories, the launcher offers to auto-lock those worktrees while the container runs (otherwise an in-container `git worktree prune`/`git gc` could remove them). Auto-lock reasons use `cc-autolocked-by:` and are removed when the last owning container exits. The locking is self-healing — a lock left behind by a launcher that was killed is reclaimed automatically by the next run — and fail-safe, applying the locks even if the internal mutex is unavailable so the container never runs with worktrees unprotected.
+
+### Why Codex state is isolated
+
+Codex keeps its history in SQLite. Both Apple Containers and Docker Desktop expose
+host folders through virtiofs, and a file lock taken on one side of that boundary
+is invisible on the other. Two writers, whether host plus container or two
+containers, both believe they hold the lock, both commit, and half of the
+acknowledged rows vanish while SQLite's integrity check still reports ok. This was
+reproduced with a synthetic database and no Codex involved; see
+[investigations/codex-history](investigations/codex-history/README.md). Sharing the
+native `~/.codex` with any container was therefore never safe, and no in-container
+locking can fix it. The fix removes the shared database and guarantees that only
+one container ever mounts any Codex store.
+
+How it works:
+
+- **Private Codex home per folder.** Native `~/.codex` is no longer mounted. Each
+  working folder gets its own persistent home under `~/.claude-contained/codex/projects/`,
+  seeded once with setup files but never with databases or transcripts.
+- **A host-side supervisor owns the folder.** Before anything runs, an embedded Python
+  script takes a native `flock` on the Mac's own filesystem, where locks work, and
+  records the owning container's name, runtime, and a random token that is also
+  stamped on the container as a label. The lock descriptor is inherited by the
+  launcher, so a killed supervisor cannot release ownership early, and lock files are
+  never deleted. If the runtime cannot be queried, ownership is kept rather than guessed.
+- **Attach instead of a second container.** Launching any tool for an owned folder
+  shows the owning container and its shared folders, asks for confirmation, and runs the
+  tool inside that container.
+- **A guard replaces `codex` in the image.** It refuses to run without the root-owned
+  identity written by the entrypoint, pins the Codex home and database to the private
+  store, forces file-based credentials, and blocks `--cd`, background daemons, and
+  config overrides that would relocate the database. Running Codex by hand from a
+  debug shell goes through the same guard.
+- **Claude's shared config moved.** Only `~/.claude-contained/shared` is mounted, so
+  containers no longer see the directory that holds every Codex store.
+
+How behavior differs:
+
+| Situation | Behavior |
+| --- | --- |
+| Claude, Copilot, Gemini, Vibe | Config directories are shared as before. A second launch for the same folder offers to attach to the owning container instead of starting another. |
+| Codex | Private per-folder history, guard-enforced home, no native state shared. |
+| Apple Containers | Several Codex sessions may run at once inside the owning container; they share one Linux kernel, so Codex's own same-conversation check works. |
+| Docker | One Codex process per folder, enforced by a container-local lock. Other tools can still attach. |
+| Mixed runtimes | A folder owned by a Docker container cannot be attached from Apple Containers or the reverse. |
+| Old containers | Launchers refuse to run while any unlabeled `aic-` container exists. Rebuild the image and remove them first. |
+
+Unchanged: path parity, UID matching, worktree locking, shared skills, the
+node_modules overlay, and single-file launcher installs. Different folders still run
+fully in parallel. The details follow.
 
 ### Codex history and container reuse
 
