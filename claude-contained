@@ -829,12 +829,21 @@ show_shared_skills_summary() {
 
 # Native host supervisor is embedded to preserve single-file launcher installs.
 managed_launch() {
-  python3 -c "$(cat <<'CC_MANAGED_PY'
+  # The script is fed on fd 3 by a plain heredoc rather than through $(...):
+  # bash 3.2 (macOS /bin/bash) misparses quotes inside heredocs within $(...).
+  python3 /dev/fd/3 "container" "$0" "$tool" "$shell_mode" "$yolo_mode" "$attach_mode" "$attach_name" \
+    "$ssh_mode" "$worktree_mode" "$lock_worktrees" "$contained_node_modules" "${CLAUDE_MEMORY:-8g}" "$explicit_paths" \
+    "${#paths[@]}" "${paths[@]}" "${#path_modes[@]}" "${path_modes[@]}" \
+    "${#share_skills_dirs[@]}" "${share_skills_dirs[@]+"${share_skills_dirs[@]}"}" \
+    "${#port_maps[@]}" "${port_maps[@]+"${port_maps[@]}"}" \
+    "${#host_forwards[@]}" "${host_forwards[@]+"${host_forwards[@]}"}" \
+    "${#tool_args[@]}" "${tool_args[@]+"${tool_args[@]}"}" \
+    "${#CC_ORIGINAL_ARGS[@]}" "${CC_ORIGINAL_ARGS[@]+"${CC_ORIGINAL_ARGS[@]}"}" 3<<'CC_MANAGED_PY'
 # BEGIN EMBEDDED MANAGED LAUNCH
 #!/usr/bin/env python3
 """Host-only lifecycle supervisor, embedded in both standalone launchers.
 Regenerate embedded copies with: python3 tests/embed-managed-launch.py
-Never mount this supervisor's lock directory into a container.
+Never mount the lock directory of this supervisor into a container.
 """
 import fcntl
 import hashlib
@@ -945,13 +954,13 @@ def config_overrides(args):
     for arg in args:
         if pending:
             pending = False
-            yield arg.split('=', 1)[0].strip().strip('"\'')
+            yield arg.split('=', 1)[0].strip().strip('"')
         elif arg in ('-c', '--config'):
             pending = True
         elif arg.startswith('--config='):
-            yield arg[9:].split('=', 1)[0].strip().strip('"\'')
+            yield arg[9:].split('=', 1)[0].strip().strip('"')
         elif arg.startswith('-c') and not arg.startswith('--'):
-            yield arg[2:].split('=', 1)[0].strip().strip('"\'')
+            yield arg[2:].split('=', 1)[0].strip().strip('"')
 
 
 def validate_tool_args(tool, args):
@@ -1045,7 +1054,7 @@ def ready(record):
 def attach(record, request):
     if request['runtime'] != record['runtime']:
         fail(f"Folder is owned by {record['runtime']} container {record['name']}; use that runtime to attach.")
-    # Attaching joins the owner's mounts. Adopt them when the request asks for
+    # Attaching joins the mounts of the owner. Adopt them when the request asks for
     # nothing beyond them; a folder the owner does not mount cannot be shared.
     owned = set(zip(record['setup']['paths'], record['setup']['modes']))
     missing = [f'{p} ({m})' for p, m in zip(request['setup']['paths'], request['setup']['modes']) if (p, m) not in owned]
@@ -1217,14 +1226,6 @@ if __name__ == '__main__':
         sys.exit(130)
 # END EMBEDDED MANAGED LAUNCH
 CC_MANAGED_PY
-)" "container" "$0" "$tool" "$shell_mode" "$yolo_mode" "$attach_mode" "$attach_name" \
-    "$ssh_mode" "$worktree_mode" "$lock_worktrees" "$contained_node_modules" "${CLAUDE_MEMORY:-8g}" "$explicit_paths" \
-    "${#paths[@]}" "${paths[@]}" "${#path_modes[@]}" "${path_modes[@]}" \
-    "${#share_skills_dirs[@]}" "${share_skills_dirs[@]+"${share_skills_dirs[@]}"}" \
-    "${#port_maps[@]}" "${port_maps[@]+"${port_maps[@]}"}" \
-    "${#host_forwards[@]}" "${host_forwards[@]+"${host_forwards[@]}"}" \
-    "${#tool_args[@]}" "${tool_args[@]+"${tool_args[@]}"}" \
-    "${#CC_ORIGINAL_ARGS[@]}" "${CC_ORIGINAL_ARGS[@]+"${CC_ORIGINAL_ARGS[@]}"}"
 }
 
 # Test hook: when sourced with CLAUDE_CONTAINED_LIB_ONLY=1, stop here so the

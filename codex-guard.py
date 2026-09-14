@@ -15,13 +15,13 @@ def config_overrides(args):
     for arg in args:
         if pending:
             pending = False
-            yield arg.split('=', 1)[0].strip().strip('"\'')
+            yield arg.split('=', 1)[0].strip().strip('"')
         elif arg in ('-c', '--config'):
             pending = True
         elif arg.startswith('--config='):
-            yield arg[9:].split('=', 1)[0].strip().strip('"\'')
+            yield arg[9:].split('=', 1)[0].strip().strip('"')
         elif arg.startswith('-c') and not arg.startswith('--'):
-            yield arg[2:].split('=', 1)[0].strip().strip('"\'')
+            yield arg[2:].split('=', 1)[0].strip().strip('"')
 
 
 def main():

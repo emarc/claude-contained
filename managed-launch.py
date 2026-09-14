@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Host-only lifecycle supervisor, embedded in both standalone launchers.
 Regenerate embedded copies with: python3 tests/embed-managed-launch.py
-Never mount this supervisor's lock directory into a container.
+Never mount the lock directory of this supervisor into a container.
 """
 import fcntl
 import hashlib
@@ -112,13 +112,13 @@ def config_overrides(args):
     for arg in args:
         if pending:
             pending = False
-            yield arg.split('=', 1)[0].strip().strip('"\'')
+            yield arg.split('=', 1)[0].strip().strip('"')
         elif arg in ('-c', '--config'):
             pending = True
         elif arg.startswith('--config='):
-            yield arg[9:].split('=', 1)[0].strip().strip('"\'')
+            yield arg[9:].split('=', 1)[0].strip().strip('"')
         elif arg.startswith('-c') and not arg.startswith('--'):
-            yield arg[2:].split('=', 1)[0].strip().strip('"\'')
+            yield arg[2:].split('=', 1)[0].strip().strip('"')
 
 
 def validate_tool_args(tool, args):
@@ -212,7 +212,7 @@ def ready(record):
 def attach(record, request):
     if request['runtime'] != record['runtime']:
         fail(f"Folder is owned by {record['runtime']} container {record['name']}; use that runtime to attach.")
-    # Attaching joins the owner's mounts. Adopt them when the request asks for
+    # Attaching joins the mounts of the owner. Adopt them when the request asks for
     # nothing beyond them; a folder the owner does not mount cannot be shared.
     owned = set(zip(record['setup']['paths'], record['setup']['modes']))
     missing = [f'{p} ({m})' for p, m in zip(request['setup']['paths'], request['setup']['modes']) if (p, m) not in owned]
