@@ -1,0 +1,32 @@
+{
+  "queue_1.sqlite": [
+    [
+      "ok"
+    ]
+  ],
+  "logs_2.sqlite": [
+    [
+      "ok"
+    ]
+  ],
+  "memories_1.sqlite": [
+    [
+      "ok"
+    ]
+  ],
+  "state_5.sqlite": [
+    [
+      "ok"
+    ]
+  ],
+  "thread_history_1.sqlite": [
+    [
+      "ok"
+    ]
+  ],
+  "goals_1.sqlite": [
+    [
+      "ok"
+    ]
+  ]
+}

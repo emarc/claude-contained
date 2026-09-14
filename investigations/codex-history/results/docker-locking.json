@@ -1,0 +1,708 @@
+{
+  "directory": "/private/tmp/codex-docker-probe-yau9w67c",
+  "lock_cases": {
+    "host-host": {
+      "holder": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.53.4"
+      },
+      "contender": {
+        "status": "ready",
+        "locks": {
+          "posix": "blocked",
+          "flock": "blocked",
+          "sqlite_writer": "database is locked"
+        },
+        "sqlite_version": "3.53.4"
+      }
+    },
+    "host-container": {
+      "holder": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.53.4"
+      },
+      "contender": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.46.1"
+      }
+    },
+    "container-host": {
+      "holder": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.46.1"
+      },
+      "contender": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.53.4"
+      }
+    },
+    "container-container": {
+      "holder": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.46.1"
+      },
+      "contender": {
+        "status": "ready",
+        "locks": {
+          "posix": "acquired",
+          "flock": "acquired",
+          "sqlite_writer": "acquired"
+        },
+        "sqlite_version": "3.46.1"
+      }
+    }
+  },
+  "write_cases": {
+    "host-host": {
+      "reported_commits": 300,
+      "writer_errors": [
+        {},
+        {}
+      ],
+      "integrity_check": [
+        [
+          "ok"
+        ]
+      ],
+      "stored_rows": 300,
+      "missing_acknowledged_commits": [],
+      "unexpected_rows": []
+    },
+    "host-container": {
+      "reported_commits": 300,
+      "writer_errors": [
+        {},
+        {}
+      ],
+      "integrity_check": [
+        [
+          "ok"
+        ]
+      ],
+      "stored_rows": 151,
+      "missing_acknowledged_commits": [
+        "host-container-writer-a:0",
+        "host-container-writer-a:1",
+        "host-container-writer-a:10",
+        "host-container-writer-a:100",
+        "host-container-writer-a:101",
+        "host-container-writer-a:102",
+        "host-container-writer-a:103",
+        "host-container-writer-a:104",
+        "host-container-writer-a:105",
+        "host-container-writer-a:106",
+        "host-container-writer-a:107",
+        "host-container-writer-a:108",
+        "host-container-writer-a:109",
+        "host-container-writer-a:11",
+        "host-container-writer-a:110",
+        "host-container-writer-a:111",
+        "host-container-writer-a:112",
+        "host-container-writer-a:113",
+        "host-container-writer-a:114",
+        "host-container-writer-a:115",
+        "host-container-writer-a:116",
+        "host-container-writer-a:117",
+        "host-container-writer-a:118",
+        "host-container-writer-a:119",
+        "host-container-writer-a:12",
+        "host-container-writer-a:120",
+        "host-container-writer-a:121",
+        "host-container-writer-a:122",
+        "host-container-writer-a:123",
+        "host-container-writer-a:124",
+        "host-container-writer-a:125",
+        "host-container-writer-a:126",
+        "host-container-writer-a:127",
+        "host-container-writer-a:128",
+        "host-container-writer-a:129",
+        "host-container-writer-a:13",
+        "host-container-writer-a:130",
+        "host-container-writer-a:131",
+        "host-container-writer-a:132",
+        "host-container-writer-a:133",
+        "host-container-writer-a:134",
+        "host-container-writer-a:135",
+        "host-container-writer-a:136",
+        "host-container-writer-a:137",
+        "host-container-writer-a:138",
+        "host-container-writer-a:139",
+        "host-container-writer-a:14",
+        "host-container-writer-a:140",
+        "host-container-writer-a:141",
+        "host-container-writer-a:142",
+        "host-container-writer-a:143",
+        "host-container-writer-a:144",
+        "host-container-writer-a:145",
+        "host-container-writer-a:146",
+        "host-container-writer-a:147",
+        "host-container-writer-a:148",
+        "host-container-writer-a:149",
+        "host-container-writer-a:15",
+        "host-container-writer-a:16",
+        "host-container-writer-a:17",
+        "host-container-writer-a:18",
+        "host-container-writer-a:19",
+        "host-container-writer-a:2",
+        "host-container-writer-a:20",
+        "host-container-writer-a:21",
+        "host-container-writer-a:22",
+        "host-container-writer-a:23",
+        "host-container-writer-a:24",
+        "host-container-writer-a:25",
+        "host-container-writer-a:26",
+        "host-container-writer-a:27",
+        "host-container-writer-a:28",
+        "host-container-writer-a:29",
+        "host-container-writer-a:3",
+        "host-container-writer-a:30",
+        "host-container-writer-a:31",
+        "host-container-writer-a:32",
+        "host-container-writer-a:33",
+        "host-container-writer-a:34",
+        "host-container-writer-a:35",
+        "host-container-writer-a:36",
+        "host-container-writer-a:37",
+        "host-container-writer-a:38",
+        "host-container-writer-a:39",
+        "host-container-writer-a:4",
+        "host-container-writer-a:40",
+        "host-container-writer-a:41",
+        "host-container-writer-a:42",
+        "host-container-writer-a:43",
+        "host-container-writer-a:44",
+        "host-container-writer-a:45",
+        "host-container-writer-a:46",
+        "host-container-writer-a:47",
+        "host-container-writer-a:48",
+        "host-container-writer-a:49",
+        "host-container-writer-a:5",
+        "host-container-writer-a:50",
+        "host-container-writer-a:51",
+        "host-container-writer-a:52",
+        "host-container-writer-a:53",
+        "host-container-writer-a:54",
+        "host-container-writer-a:55",
+        "host-container-writer-a:56",
+        "host-container-writer-a:57",
+        "host-container-writer-a:58",
+        "host-container-writer-a:59",
+        "host-container-writer-a:60",
+        "host-container-writer-a:61",
+        "host-container-writer-a:62",
+        "host-container-writer-a:63",
+        "host-container-writer-a:64",
+        "host-container-writer-a:65",
+        "host-container-writer-a:66",
+        "host-container-writer-a:67",
+        "host-container-writer-a:68",
+        "host-container-writer-a:69",
+        "host-container-writer-a:7",
+        "host-container-writer-a:70",
+        "host-container-writer-a:71",
+        "host-container-writer-a:72",
+        "host-container-writer-a:73",
+        "host-container-writer-a:74",
+        "host-container-writer-a:75",
+        "host-container-writer-a:76",
+        "host-container-writer-a:77",
+        "host-container-writer-a:78",
+        "host-container-writer-a:79",
+        "host-container-writer-a:8",
+        "host-container-writer-a:80",
+        "host-container-writer-a:81",
+        "host-container-writer-a:82",
+        "host-container-writer-a:83",
+        "host-container-writer-a:84",
+        "host-container-writer-a:85",
+        "host-container-writer-a:86",
+        "host-container-writer-a:87",
+        "host-container-writer-a:88",
+        "host-container-writer-a:89",
+        "host-container-writer-a:9",
+        "host-container-writer-a:90",
+        "host-container-writer-a:91",
+        "host-container-writer-a:92",
+        "host-container-writer-a:93",
+        "host-container-writer-a:94",
+        "host-container-writer-a:95",
+        "host-container-writer-a:96",
+        "host-container-writer-a:97",
+        "host-container-writer-a:98",
+        "host-container-writer-a:99"
+      ],
+      "unexpected_rows": []
+    },
+    "container-container": {
+      "reported_commits": 300,
+      "writer_errors": [
+        {},
+        {}
+      ],
+      "integrity_check": [
+        [
+          "row 2 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 4 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 13 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 15 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 16 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 18 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 20 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 22 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 24 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 26 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 28 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 30 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 32 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 34 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 36 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 38 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 40 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 42 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 44 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 46 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 48 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 50 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 52 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 54 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 56 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 58 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 60 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 62 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 64 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 66 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 68 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 70 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 72 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 74 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 76 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 78 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 80 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 82 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 84 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 86 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 88 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 90 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "non-unique entry in index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 141 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 143 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 145 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 147 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 149 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 151 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 153 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 155 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 157 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 159 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 161 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 163 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 165 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 167 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 169 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 171 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 173 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 175 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 177 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 179 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 181 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 184 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 186 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 188 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 189 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 191 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 193 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 195 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 197 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 199 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 201 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 203 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 205 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 207 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 209 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 211 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 213 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 215 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 217 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 219 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 221 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 223 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 225 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 227 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 229 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 231 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 233 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 235 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 237 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 239 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 241 missing from index sqlite_autoindex_entries_1"
+        ],
+        [
+          "row 242 missing from index sqlite_autoindex_entries_1"
+        ]
+      ],
+      "stored_rows": 165,
+      "missing_acknowledged_commits": [
+        "container-container-writer-a:1",
+        "container-container-writer-a:116",
+        "container-container-writer-a:118",
+        "container-container-writer-a:120",
+        "container-container-writer-a:122",
+        "container-container-writer-a:124",
+        "container-container-writer-a:126",
+        "container-container-writer-a:128",
+        "container-container-writer-a:130",
+        "container-container-writer-a:132",
+        "container-container-writer-a:134",
+        "container-container-writer-a:136",
+        "container-container-writer-a:139",
+        "container-container-writer-a:141",
+        "container-container-writer-a:143",
+        "container-container-writer-a:3",
+        "container-container-writer-a:72",
+        "container-container-writer-a:73",
+        "container-container-writer-a:74",
+        "container-container-writer-a:75",
+        "container-container-writer-a:76",
+        "container-container-writer-a:77",
+        "container-container-writer-a:78",
+        "container-container-writer-a:79",
+        "container-container-writer-a:8",
+        "container-container-writer-a:80",
+        "container-container-writer-a:81",
+        "container-container-writer-a:82",
+        "container-container-writer-a:83",
+        "container-container-writer-a:84",
+        "container-container-writer-a:85",
+        "container-container-writer-a:86",
+        "container-container-writer-a:87",
+        "container-container-writer-a:88",
+        "container-container-writer-a:89",
+        "container-container-writer-a:9",
+        "container-container-writer-a:90",
+        "container-container-writer-a:91",
+        "container-container-writer-a:92",
+        "container-container-writer-a:93",
+        "container-container-writer-a:94",
+        "container-container-writer-a:95",
+        "container-container-writer-a:96",
+        "container-container-writer-a:97",
+        "container-container-writer-a:98",
+        "container-container-writer-a:99",
+        "container-container-writer-b:0",
+        "container-container-writer-b:1",
+        "container-container-writer-b:10",
+        "container-container-writer-b:100",
+        "container-container-writer-b:101",
+        "container-container-writer-b:102",
+        "container-container-writer-b:103",
+        "container-container-writer-b:104",
+        "container-container-writer-b:105",
+        "container-container-writer-b:106",
+        "container-container-writer-b:107",
+        "container-container-writer-b:108",
+        "container-container-writer-b:109",
+        "container-container-writer-b:11",
+        "container-container-writer-b:110",
+        "container-container-writer-b:111",
+        "container-container-writer-b:112",
+        "container-container-writer-b:113",
+        "container-container-writer-b:114",
+        "container-container-writer-b:115",
+        "container-container-writer-b:116",
+        "container-container-writer-b:117",
+        "container-container-writer-b:118",
+        "container-container-writer-b:119",
+        "container-container-writer-b:12",
+        "container-container-writer-b:120",
+        "container-container-writer-b:121",
+        "container-container-writer-b:122",
+        "container-container-writer-b:123",
+        "container-container-writer-b:124",
+        "container-container-writer-b:125",
+        "container-container-writer-b:126",
+        "container-container-writer-b:127",
+        "container-container-writer-b:128",
+        "container-container-writer-b:129",
+        "container-container-writer-b:13",
+        "container-container-writer-b:130",
+        "container-container-writer-b:131",
+        "container-container-writer-b:132",
+        "container-container-writer-b:133",
+        "container-container-writer-b:134",
+        "container-container-writer-b:135",
+        "container-container-writer-b:136",
+        "container-container-writer-b:137",
+        "container-container-writer-b:138",
+        "container-container-writer-b:139",
+        "container-container-writer-b:14",
+        "container-container-writer-b:141",
+        "container-container-writer-b:143",
+        "container-container-writer-b:145",
+        "container-container-writer-b:15",
+        "container-container-writer-b:16",
+        "container-container-writer-b:17",
+        "container-container-writer-b:18",
+        "container-container-writer-b:19",
+        "container-container-writer-b:2",
+        "container-container-writer-b:20",
+        "container-container-writer-b:21",
+        "container-container-writer-b:22",
+        "container-container-writer-b:23",
+        "container-container-writer-b:24",
+        "container-container-writer-b:25",
+        "container-container-writer-b:26",
+        "container-container-writer-b:27",
+        "container-container-writer-b:28",
+        "container-container-writer-b:29",
+        "container-container-writer-b:3",
+        "container-container-writer-b:30",
+        "container-container-writer-b:31",
+        "container-container-writer-b:32",
+        "container-container-writer-b:33",
+        "container-container-writer-b:34",
+        "container-container-writer-b:35",
+        "container-container-writer-b:36",
+        "container-container-writer-b:37",
+        "container-container-writer-b:38",
+        "container-container-writer-b:39",
+        "container-container-writer-b:4",
+        "container-container-writer-b:40",
+        "container-container-writer-b:41",
+        "container-container-writer-b:42",
+        "container-container-writer-b:43",
+        "container-container-writer-b:44",
+        "container-container-writer-b:45",
+        "container-container-writer-b:46",
+        "container-container-writer-b:47",
+        "container-container-writer-b:95",
+        "container-container-writer-b:97",
+        "container-container-writer-b:99"
+      ],
+      "unexpected_rows": []
+    }
+  },
+  "environment": {
+    "date": "2026-09-11",
+    "platform": "macOS",
+    "docker_engine": "27.4.0",
+    "image": "python:3.11-slim",
+    "image_digest": "sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534",
+    "scope": "Host bind mounts; native Linux Docker and Docker named volumes not tested"
+  }
+}

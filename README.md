@@ -1,17 +1,16 @@
 # AI Contained
 
-> [!WARNING]
-> Currently investigating a potential history corruption issue with Codex. Do not run Codex Desktop and codex in claude-contained simultaniously until resolved. Maybe even avoid multiple codex sessions in claude-code.
+> **Upgrading:** rebuild the image and remove old `aic-` containers before using these launchers. Codex now uses separate, persistent history per folder. Existing native history is preserved but is not imported.
 
-Seamlessly run CLI coding agents (Claude, Codex, Gemini, Vibe) inside an [Apple Container](https://github.com/apple/container) or [Docker](https://www.docker.com) container with persistent state. 
+Seamlessly run CLI coding agents (Claude, Codex, Gemini, Vibe) inside an [Apple Container](https://github.com/apple/container) or [Docker](https://www.docker.com) container with persistent state.
 
 The main goal is to provide a seamless experience; `alias claude='claude-contained --yolo'` and now `claude` runs in a container with your settings. Only `.` or the folders you specify are shared with the container.
-History is retained (even if you switch back to un-contained `claude`). 
+History is retained (even if you switch back to un-contained `claude`).
 
 There are some caveats:
 
 - **Host localhost access**: `-H PORT` works with `claude-docked` (Docker) but not `claude-contained` (Apple Containers) for services bound to localhost. See [Accessing Host Services](#accessing-host-services). (Apple Containers seems to be gaining support soon.)
-- **`~/.claude.json` is relocated**: On first run, your `~/.claude.json` is moved to `~/.claude-contained/.claude.json` and replaced with a symlink. This allows containers to share the file. **If you delete `~/.claude-contained/`, you will lose your Claude credentials and some settings.** You'll have to log in again. This is a limitation on how files can be shared with the container. 
+- **`~/.claude.json` is relocated**: On first run, your `~/.claude.json` is moved to `~/.claude-contained/shared/.claude.json` and replaced with a symlink. This allows containers to share the file. **If you delete `~/.claude-contained/`, you will lose your Claude credentials and some settings.** You'll have to log in again. This is a limitation on how files can be shared with the container.
 - **Don't mix contained and uncontained at the same time**: Running `claude-contained` and regular `claude` simultaneously may cause issues, as both access the same config file but through different paths. Run one or the other, not both at once. This will be fixed in the future.
 - **Codex and PATH**: Codex runs commands via `bash -lc`, which sources `/etc/profile` and resets PATH to the Debian default. This means tools installed outside standard locations (e.g., via SDKMAN) won't be found unless symlinked into `/usr/local/bin/`. The image includes symlinks for `java`, `javac`, `jar`, `mvn`, and `jbang`. If you install additional tools in non-standard paths, add similar symlinks in the Dockerfile.
 
@@ -85,7 +84,7 @@ claude-contained [options] [main_dir] [extra_dir ...] [-- <tool args...>]
 | [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) | `gemini` | `--yolo` | `~/.gemini` |
 | [Mistral Vibe](https://github.com/mistralai/mistral-vibe) | `vibe` | `--auto-approve` | `~/.vibe` |
 
-All config directories are bind-mounted regardless of which tool you run.
+Config directories are mounted regardless of which tool you run. Codex’s in-container `~/.codex` comes from the selected folder’s private store, never native `~/.codex`.
 
 ### Behavior
 
@@ -100,6 +99,57 @@ All config directories are bind-mounted regardless of which tool you run.
 - Rust state is persisted in container-specific directories — `~/.claude-contained/cargo-linux-<arch>` is mounted as `~/.cargo` and `~/.claude-contained/rustup-linux-<arch>` as `~/.rustup` — so crates, extra toolchains (`rust-toolchain.toml` pins, dylint's nightly) and dylint drivers survive across runs. Your host `~/.cargo`/`~/.rustup` are left alone: they hold macOS binaries that cannot run in the Linux container, and rustup rewrites the proxies in `~/.cargo/bin` whenever it installs a toolchain. The image's stable toolchain is symlinked into the mount rather than copied, so only newly installed toolchains use space there.
 - Git worktrees are detected; main repository is included for full git access
 - If a mounted main repository has linked worktrees outside the mounted directories, the launcher offers to auto-lock those worktrees while the container runs (otherwise an in-container `git worktree prune`/`git gc` could remove them). Auto-lock reasons use `cc-autolocked-by:` and are removed when the last owning container exits. The locking is self-healing — a lock left behind by a launcher that was killed is reclaimed automatically by the next run — and fail-safe, applying the locks even if the internal mutex is unavailable so the container never runs with worktrees unprotected.
+
+### Codex history and container reuse
+
+Both launchers require Python 3.9+ on the host. Each canonical primary folder gets
+its own durable Codex home under
+`~/.claude-contained/codex/projects/<folder>-<path-hash>/home`. Relative paths,
+symlinks, and macOS case aliases select the same store; separate worktrees select
+different stores. Additional mounted folders do not change history ownership.
+Pass the working folder to the launcher, rather than forwarding Codex `--cd`/`-C`.
+Moving a folder selects a new store; there is no automatic relocation or merge.
+
+On first use, `auth.json`, `config.toml`, `AGENTS.md`, skills, and plugins are copied
+into the private home if present. Databases and transcripts are **not** copied.
+Subsequent setup and credential changes stay private to that folder. If native
+credentials were held in the macOS keychain rather than `auth.json`, log in inside
+the contained Codex session. File credentials and database paths are pinned to the
+private home. Database-location overrides and external state symlinks are refused.
+Native CLI/Desktop can keep using native history independently. This does not
+repair previously damaged history; preserve an offline backup before recovery.
+
+A host lock reserves each folder for one container across both runtimes. Different
+folders can run concurrently. Starting any agent for an occupied folder offers to
+start it in the existing container, with **explicit confirmation**, including with
+`--yolo`. Decline or EOF cancels. The requested tool, arguments, and working folder
+are preserved. Repeat the original container setup options (extra mounts/access
+modes, shared skills, ports, SSH, worktree/node options, memory, image, and GitHub
+token); incompatible options are refused rather than ignored. Use the owning
+runtime for mixed-runtime attachment.
+
+- **Apple Containers:** independent Codex sessions can run concurrently in the
+  owning container. Codex prevents simultaneous writing to the same conversation.
+- **Docker:** only one Codex process per folder may run at a time. A container-local
+  lock enforces this for ordinary starts, attachment, and Codex invoked from a
+  debug shell. Other agents may still reuse that container.
+- **Lifecycle:** attachment shares the original container’s filesystem and lifetime;
+  attached agents can end when its original session exits. A surviving orphan
+  retains ownership. A stopped container must be removed before its store can be
+  reused elsewhere. Unknown runtime state never authorizes a second mount.
+
+Only managed launcher/guard entry points are supported. Old containers, direct
+Codex binaries bypassing the guard, background app-server daemons, and devcontainer
+Codex starts are unsupported. Do not open private contained stores with native
+Codex. Mounting HOME or the native/private state directories as project or skills
+sources is refused. Other agents’ state remains shared as before. Claude’s shared
+config moves into `~/.claude-contained/shared/`, with its old path retained as a
+symlink, so containers need not see the directory containing all Codex stores.
+
+The launcher remains installable as one file. Maintainers edit `managed-launch.py`
+and run `python3 tests/embed-managed-launch.py` to update both embedded copies.
+`CLAUDE_CONTAINED_IMAGE` optionally selects an image (default
+`claude-contained:latest`); the image must include the guarded entrypoint.
 
 ### Shared Skills
 
@@ -117,7 +167,7 @@ Both commands combine the sources at `~/.claude/skills`, `~/.codex/skills`, `~/.
 - **Combined contents:** The first source is mounted as the shared root. Non-hidden, nonempty top-level directories from later sources are mounted beneath it. Hidden entries, empty directories, and root files from later sources are excluded.
 - **Conflicts:** Duplicate names cause an error, except that an empty directory in the first source can serve as a mountpoint. Files, symlinks, and nonempty directories in the first source are never hidden by a later source.
 - **Host folders:** Empty mountpoint directories may appear in the first source on the host. Git does not track them, and no skill data is copied there.
-- **Codex built-ins:** The host's `~/.codex/skills/.system` remains mounted at the Codex target.
+- **Codex built-ins:** The private Codex home’s `skills/.system` remains mounted at the Codex target. It is initially copied with the other skills.
 
 Startup lists the sources and container targets in one line, marking where new skills go:
 

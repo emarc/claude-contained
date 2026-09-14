@@ -1,0 +1,111 @@
+{
+  "paginated": {
+    "raw_evidence": "/private/tmp/codex-concurrent-resume-ad9y_7v6",
+    "cli_version": "0.153.4",
+    "attempts": {
+      "B": "Error: Failed to resume session from /private/tmp/codex-concurrent-resume-ad9y_7v6/codex/sessions/2026/09/10/rollout-2026-09-10T20-50-23-01a08c71-2fbe-7833-8367-689fab3de6fa.jsonl: thread/resume failed during TUI bootstrap: thread/resume failed: thread 01a08c71-2fbe-7833-8367-689fab3de6fa already has an active writer (code -32600)",
+      "C-after-A-turn-completed": "Error: Failed to resume session from /private/tmp/codex-concurrent-resume-ad9y_7v6/codex/sessions/2026/09/10/rollout-2026-09-10T20-50-23-01a08c71-2fbe-7833-8367-689fab3de6fa.jsonl: thread/resume failed during TUI bootstrap: thread/resume failed: thread 01a08c71-2fbe-7833-8367-689fab3de6fa already has an active writer (code -32600)"
+    },
+    "thread_id": "01a08c71-2fbe-7833-8367-689fab3de6fa",
+    "forked_from_id": null,
+    "saved_turns": [
+      {
+        "status": "completed",
+        "user_text": [
+          "Seed conversation."
+        ]
+      },
+      {
+        "status": "completed",
+        "user_text": [
+          "Synthetic continuation from client A."
+        ]
+      }
+    ],
+    "resume_after_exit": true,
+    "integrity": {
+      "queue_1.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "logs_2.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "memories_1.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "state_5.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "thread_history_1.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "goals_1.sqlite": [
+        [
+          "ok"
+        ]
+      ]
+    }
+  },
+  "legacy": {
+    "raw_evidence": "/private/tmp/codex-concurrent-resume-fm3fisoy",
+    "cli_version": "0.153.4",
+    "attempts": {
+      "B": "Error: Failed to resume session from /private/tmp/codex-concurrent-resume-fm3fisoy/codex/sessions/2026/09/10/rollout-2026-09-10T20-50-38-01a08c71-6adb-7663-a41b-976e0f899867.jsonl: thread/resume failed during TUI bootstrap: thread/resume failed: thread 01a08c71-6adb-7663-a41b-976e0f899867 already has an active writer (code -32600)",
+      "C-after-A-turn-completed": "Error: Failed to resume session from /private/tmp/codex-concurrent-resume-fm3fisoy/codex/sessions/2026/09/10/rollout-2026-09-10T20-50-38-01a08c71-6adb-7663-a41b-976e0f899867.jsonl: thread/resume failed during TUI bootstrap: thread/resume failed: thread 01a08c71-6adb-7663-a41b-976e0f899867 already has an active writer (code -32600)"
+    },
+    "thread_id": "01a08c71-6adb-7663-a41b-976e0f899867",
+    "forked_from_id": null,
+    "saved_turns": [
+      {
+        "status": "completed",
+        "user_text": [
+          "Seed conversation."
+        ]
+      },
+      {
+        "status": "completed",
+        "user_text": [
+          "Synthetic continuation from client A."
+        ]
+      }
+    ],
+    "resume_after_exit": true,
+    "integrity": {
+      "queue_1.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "logs_2.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "memories_1.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "state_5.sqlite": [
+        [
+          "ok"
+        ]
+      ],
+      "goals_1.sqlite": [
+        [
+          "ok"
+        ]
+      ]
+    }
+  }
+}

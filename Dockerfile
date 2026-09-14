@@ -331,7 +331,12 @@ RUN mkdir -p /etc/claude-code \
 # Kept as a separate file: Apple Containers rejects Dockerfiles > 16 KiB
 # (apple/container#735), so the script cannot live inline as a heredoc.
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/managed-entrypoint.sh
+COPY codex-guard.py /usr/local/bin/codex-guard.py
+RUN mv /usr/local/bin/codex /usr/local/bin/cc-codex-real \
+    && chmod +x /usr/local/bin/codex-guard.py \
+    && ln -s /usr/local/bin/codex-guard.py /usr/local/bin/codex
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/managed-entrypoint.sh
 
 WORKDIR /work
 # HOME is set dynamically in entrypoint based on HOST_HOME

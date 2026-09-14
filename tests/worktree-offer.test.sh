@@ -42,9 +42,11 @@ suite() {
 
   main="$(mktemp -d)/repo"
   mkdir -p "$main"
+  main="$(cd "$main" && pwd -P)"
   git init -q "$main"
   git -C "$main" -c user.email=t@example.com -c user.name=test commit -q --allow-empty -m init
   wt="$(mktemp -d)/hidden-wt"
+  wt="$(cd "$(dirname "$wt")" && pwd -P)/hidden-wt"
   git -C "$main" worktree add -q --detach "$wt" >/dev/null 2>&1
 
   # The launcher would mount the main repo (so .git/worktrees is visible) but

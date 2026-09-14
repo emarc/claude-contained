@@ -175,6 +175,22 @@ if [ -z "${DISPLAY:-}" ]; then
 fi
 
 # Drop to dev user (or stay root if STAY_ROOT=1)
+if [ -n "${CC_TOKEN:-}" ]; then
+  # Root-owned identity and a Linux-local lock protect manual shell/exec starts
+  # too. Never put this lock on the host's bind-mounted Codex home.
+  mkdir -p /run/claude-contained
+  touch /run/claude-contained/codex.lock
+  chown dev:dev /run/claude-contained/codex.lock
+  chmod 600 /run/claude-contained/codex.lock
+  python3 - <<'PY'
+import json, os
+from pathlib import Path
+p = Path('/run/claude-contained/identity.json')
+p.write_text(json.dumps({'token': os.environ['CC_TOKEN'],
+                        'runtime': os.environ['CC_RUNTIME'], 'home': os.environ['HOST_HOME']}))
+PY
+fi
+
 if [ "$(id -u)" = "0" ] && [ "${STAY_ROOT:-}" != "1" ]; then
   USER_HOME="${HOME:-/home/dev}"
   exec gosu dev env \

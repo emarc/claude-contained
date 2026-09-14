@@ -1,0 +1,1260 @@
+{
+  "legacy_start": {
+    "id": 2,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": []
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly"
+    }
+  },
+  "legacy_turn_start": {
+    "id": 3,
+    "result": {
+      "turn": {
+        "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+        "items": [],
+        "itemsView": "notLoaded",
+        "status": "inProgress",
+        "error": null,
+        "startedAt": null,
+        "completedAt": null,
+        "durationMs": null
+      }
+    }
+  },
+  "legacy_turn_completed": {
+    "method": "turn/completed",
+    "params": {
+      "threadId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+      "turn": {
+        "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+        "items": [
+          {
+            "type": "agentMessage",
+            "id": "msg_5d1349d02a304f55ac97bb433317629b",
+            "text": "Synthetic completed turn.",
+            "phase": null,
+            "memoryCitation": null,
+            "delivery": null,
+            "questions": null
+          }
+        ],
+        "itemsView": "summary",
+        "status": "completed",
+        "error": null,
+        "startedAt": 1789058075,
+        "completedAt": 1789058075,
+        "durationMs": 16
+      }
+    },
+    "emittedAtMs": 1789058075086
+  },
+  "legacy_inject": {
+    "id": 4,
+    "result": {}
+  },
+  "create_legacy_thread/read": {
+    "id": 5,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "item-1",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "item-2",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 16
+          }
+        ]
+      }
+    }
+  },
+  "create_legacy_thread/turns/list": {
+    "id": 6,
+    "result": {
+      "data": [
+        {
+          "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+          "items": [
+            {
+              "type": "userMessage",
+              "id": "item-1",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Synthetic history probe. Reply briefly.",
+                  "text_elements": []
+                }
+              ]
+            },
+            {
+              "type": "agentMessage",
+              "id": "item-2",
+              "text": "Synthetic completed turn.",
+              "phase": null,
+              "memoryCitation": null,
+              "delivery": null,
+              "questions": null
+            }
+          ],
+          "itemsView": "summary",
+          "status": "completed",
+          "error": null,
+          "startedAt": 1789058075,
+          "completedAt": 1789058075,
+          "durationMs": 16
+        }
+      ],
+      "nextCursor": null,
+      "backwardsCursor": "{\"turnId\":\"01a08c2b-c9bd-7b01-8218-f7c431be4e27\",\"includeAnchor\":true}"
+    }
+  },
+  "create_legacy_thread/resume": {
+    "id": 7,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "item-1",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "item-2",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 16
+          }
+        ]
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": null,
+      "itemsBackwardsCursor": null
+    }
+  },
+  "create_legacy_thread/resume_exclude": {
+    "id": 8,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": []
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": null,
+      "itemsBackwardsCursor": null
+    }
+  },
+  "paginated_start": {
+    "id": 9,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": []
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly"
+    }
+  },
+  "paginated_turn_start": {
+    "id": 10,
+    "result": {
+      "turn": {
+        "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+        "items": [],
+        "itemsView": "notLoaded",
+        "status": "inProgress",
+        "error": null,
+        "startedAt": null,
+        "completedAt": null,
+        "durationMs": null
+      }
+    }
+  },
+  "paginated_turn_completed": {
+    "method": "turn/completed",
+    "params": {
+      "threadId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+      "turn": {
+        "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+        "items": [
+          {
+            "type": "agentMessage",
+            "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+            "text": "Synthetic completed turn.",
+            "phase": null,
+            "memoryCitation": null,
+            "delivery": null,
+            "questions": null
+          }
+        ],
+        "itemsView": "summary",
+        "status": "completed",
+        "error": null,
+        "startedAt": 1789058075,
+        "completedAt": 1789058075,
+        "durationMs": 13
+      }
+    },
+    "emittedAtMs": 1789058075136
+  },
+  "paginated_inject": {
+    "id": 11,
+    "result": {}
+  },
+  "create_paginated_thread/read": {
+    "id": 12,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "01a08c2b-c9fc-7580-8d31-632846f1f523",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 13
+          }
+        ]
+      }
+    }
+  },
+  "create_paginated_thread/turns/list": {
+    "id": 13,
+    "result": {
+      "data": [
+        {
+          "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+          "items": [
+            {
+              "type": "userMessage",
+              "id": "01a08c2b-c9fc-7580-8d31-632846f1f523",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Synthetic history probe. Reply briefly.",
+                  "text_elements": []
+                }
+              ]
+            },
+            {
+              "type": "agentMessage",
+              "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+              "text": "Synthetic completed turn.",
+              "phase": null,
+              "memoryCitation": null,
+              "delivery": null,
+              "questions": null
+            }
+          ],
+          "itemsView": "summary",
+          "status": "completed",
+          "error": null,
+          "startedAt": 1789058075,
+          "completedAt": 1789058075,
+          "durationMs": 13
+        }
+      ],
+      "nextCursor": null,
+      "backwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":1,\"includeAnchor\":true,\"scope\":{\"kind\":\"turns\"}}"
+    }
+  },
+  "create_paginated_thread/resume": {
+    "id": 14,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "01a08c2b-c9fc-7580-8d31-632846f1f523",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 13
+          }
+        ]
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":1,\"includeAnchor\":true,\"scope\":{\"kind\":\"turns\"}}",
+      "itemsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":8,\"includeAnchor\":true,\"scope\":{\"kind\":\"itemsByCreatedAtOrdinal\"}}"
+    }
+  },
+  "create_paginated_thread/resume_exclude": {
+    "id": 15,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": []
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": null,
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":1,\"includeAnchor\":true,\"scope\":{\"kind\":\"turns\"}}",
+      "itemsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":8,\"includeAnchor\":true,\"scope\":{\"kind\":\"itemsByCreatedAtOrdinal\"}}"
+    }
+  },
+  "reopen_legacy_thread/read": {
+    "id": 2,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "notLoaded"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": null,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "item-1",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "item-2",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 16
+          }
+        ]
+      }
+    }
+  },
+  "reopen_legacy_thread/turns/list": {
+    "id": 3,
+    "result": {
+      "data": [
+        {
+          "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+          "items": [
+            {
+              "type": "userMessage",
+              "id": "item-1",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Synthetic history probe. Reply briefly.",
+                  "text_elements": []
+                }
+              ]
+            },
+            {
+              "type": "agentMessage",
+              "id": "item-2",
+              "text": "Synthetic completed turn.",
+              "phase": null,
+              "memoryCitation": null,
+              "delivery": null,
+              "questions": null
+            }
+          ],
+          "itemsView": "summary",
+          "status": "completed",
+          "error": null,
+          "startedAt": 1789058075,
+          "completedAt": 1789058075,
+          "durationMs": 16
+        }
+      ],
+      "nextCursor": null,
+      "backwardsCursor": "{\"turnId\":\"01a08c2b-c9bd-7b01-8218-f7c431be4e27\",\"includeAnchor\":true}"
+    }
+  },
+  "reopen_legacy_thread/resume": {
+    "id": 4,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9bd-7b01-8218-f7c431be4e27",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "item-1",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "item-2",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 16
+          }
+        ]
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": {
+        "id": ":read-only",
+        "extends": null
+      },
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": null,
+      "itemsBackwardsCursor": null
+    }
+  },
+  "reopen_legacy_thread/resume_exclude": {
+    "id": 5,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "extra": null,
+        "sessionId": "01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "legacy",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9b3-73d2-9eb4-f3b1ad03437c.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": []
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": {
+        "id": ":read-only",
+        "extends": null
+      },
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": null,
+      "itemsBackwardsCursor": null
+    }
+  },
+  "reopen_paginated_thread/read": {
+    "id": 6,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "notLoaded"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": null,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "01a08c2b-c9fc-7580-8d31-632846f1f523",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 13
+          }
+        ]
+      }
+    }
+  },
+  "reopen_paginated_thread/turns/list": {
+    "id": 7,
+    "result": {
+      "data": [
+        {
+          "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+          "items": [
+            {
+              "type": "userMessage",
+              "id": "01a08c2b-c9fc-7580-8d31-632846f1f523",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Synthetic history probe. Reply briefly.",
+                  "text_elements": []
+                }
+              ]
+            },
+            {
+              "type": "agentMessage",
+              "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+              "text": "Synthetic completed turn.",
+              "phase": null,
+              "memoryCitation": null,
+              "delivery": null,
+              "questions": null
+            }
+          ],
+          "itemsView": "summary",
+          "status": "completed",
+          "error": null,
+          "startedAt": 1789058075,
+          "completedAt": 1789058075,
+          "durationMs": 13
+        }
+      ],
+      "nextCursor": null,
+      "backwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":1,\"includeAnchor\":true,\"scope\":{\"kind\":\"turns\"}}"
+    }
+  },
+  "reopen_paginated_thread/resume": {
+    "id": 8,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": [
+          {
+            "id": "01a08c2b-c9f2-7c51-897f-0897f6999437",
+            "items": [
+              {
+                "type": "userMessage",
+                "id": "01a08c2b-c9fc-7580-8d31-632846f1f523",
+                "clientId": null,
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Synthetic history probe. Reply briefly.",
+                    "text_elements": []
+                  }
+                ]
+              },
+              {
+                "type": "agentMessage",
+                "id": "msg_d001ab2de6b64f09bc3d57efb77ba276",
+                "text": "Synthetic completed turn.",
+                "phase": null,
+                "memoryCitation": null,
+                "delivery": null,
+                "questions": null
+              }
+            ],
+            "itemsView": "full",
+            "status": "completed",
+            "error": null,
+            "startedAt": 1789058075,
+            "completedAt": 1789058075,
+            "durationMs": 13
+          }
+        ]
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": {
+        "id": ":read-only",
+        "extends": null
+      },
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":1,\"includeAnchor\":true,\"scope\":{\"kind\":\"turns\"}}",
+      "itemsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":8,\"includeAnchor\":true,\"scope\":{\"kind\":\"itemsByCreatedAtOrdinal\"}}"
+    }
+  },
+  "reopen_paginated_thread/resume_exclude": {
+    "id": 9,
+    "result": {
+      "thread": {
+        "id": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "extra": null,
+        "sessionId": "01a08c2b-c9d5-7581-b39a-479a64d55b03",
+        "forkedFromId": null,
+        "parentThreadId": null,
+        "preview": "Synthetic history probe. Reply briefly.",
+        "ephemeral": false,
+        "section": null,
+        "sectionEnteredAt": null,
+        "projectId": null,
+        "historyMode": "paginated",
+        "modelProvider": "probe",
+        "model": "probe-model",
+        "reasoningEffort": null,
+        "createdAt": 1789058075,
+        "updatedAt": 1789058075,
+        "recencyAt": 1789058075,
+        "status": {
+          "type": "idle"
+        },
+        "path": "/private/tmp/codex-history-probe-e_e20r0g/codex/sessions/2026/09/10/rollout-2026-09-10T19-34-35-01a08c2b-c9d5-7581-b39a-479a64d55b03.jsonl",
+        "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+        "cliVersion": "0.153.4",
+        "source": "vscode",
+        "canAcceptDirectInput": true,
+        "threadSource": null,
+        "agentNickname": null,
+        "agentRole": null,
+        "gitInfo": null,
+        "name": null,
+        "turns": []
+      },
+      "model": "probe-model",
+      "modelProvider": "probe",
+      "serviceTier": null,
+      "cwd": "/private/tmp/codex-history-probe-e_e20r0g",
+      "runtimeWorkspaceRoots": [
+        "/private/tmp/codex-history-probe-e_e20r0g"
+      ],
+      "instructionSources": [],
+      "approvalPolicy": "never",
+      "approvalsReviewer": "user",
+      "sandbox": {
+        "type": "readOnly",
+        "networkAccess": false
+      },
+      "activePermissionProfile": {
+        "id": ":read-only",
+        "extends": null
+      },
+      "reasoningEffort": null,
+      "multiAgentMode": "explicitRequestOnly",
+      "initialTurnsPage": null,
+      "turnsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":1,\"includeAnchor\":true,\"scope\":{\"kind\":\"turns\"}}",
+      "itemsBackwardsCursor": "{\"requestedThreadId\":\"01a08c2b-c9d5-7581-b39a-479a64d55b03\",\"rolloutOrdinal\":8,\"includeAnchor\":true,\"scope\":{\"kind\":\"itemsByCreatedAtOrdinal\"}}"
+    }
+  }
+}

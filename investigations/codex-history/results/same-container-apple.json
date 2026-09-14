@@ -1,0 +1,182 @@
+{
+  "runtime": "Apple Containers",
+  "codex_version": "0.154.0",
+  "storage": "host bind mount; both writers in one container",
+  "independent_and_sqlite": {
+    "root": "/private/tmp/codex-same-container-1mwmrltp",
+    "version": "codex-cli 0.154.0",
+    "locks": {
+      "status": "ready",
+      "locks": {
+        "posix": "blocked",
+        "flock": "blocked",
+        "sqlite_writer": "database is locked"
+      },
+      "sqlite_version": "3.40.1"
+    },
+    "sqlite_writes": {
+      "acknowledged": 300,
+      "retained": 300,
+      "integrity": {
+        "probe.sqlite": [
+          [
+            "ok"
+          ]
+        ]
+      }
+    },
+    "legacy": {
+      "overlapping_turn_pairs": 5,
+      "acknowledged_and_retained_turns": 10,
+      "resume": "passed",
+      "state": "/private/tmp/codex-independent-legacy-et4k8kp4",
+      "integrity": {
+        "queue_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "logs_2.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "memories_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "state_5.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "goals_1.sqlite": [
+          [
+            "ok"
+          ]
+        ]
+      }
+    },
+    "paginated": {
+      "overlapping_turn_pairs": 5,
+      "acknowledged_and_retained_turns": 10,
+      "resume": "passed",
+      "state": "/private/tmp/codex-independent-paginated-k3refy4g",
+      "integrity": {
+        "queue_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "logs_2.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "memories_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "state_5.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "thread_history_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "goals_1.sqlite": [
+          [
+            "ok"
+          ]
+        ]
+      }
+    },
+    "status": "passed"
+  },
+  "duplicate_resume": [
+    {
+      "root": "/private/tmp/codex-one-container-apple-20260914/codex-concurrent-resume-0itv_ioa",
+      "retained_turns": 2,
+      "contenders": {
+        "C-after-A-turn-completed": true,
+        "B": true
+      },
+      "resume_after_exit": true,
+      "integrity": {
+        "queue_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "logs_2.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "memories_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "state_5.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "thread_history_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "goals_1.sqlite": [
+          [
+            "ok"
+          ]
+        ]
+      },
+      "only_seed_and_a": true
+    },
+    {
+      "root": "/private/tmp/codex-one-container-apple-20260914/codex-concurrent-resume-fqi__3mm",
+      "retained_turns": 2,
+      "contenders": {
+        "C-after-A-turn-completed": true,
+        "B": true
+      },
+      "resume_after_exit": true,
+      "integrity": {
+        "queue_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "logs_2.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "memories_1.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "state_5.sqlite": [
+          [
+            "ok"
+          ]
+        ],
+        "goals_1.sqlite": [
+          [
+            "ok"
+          ]
+        ]
+      },
+      "only_seed_and_a": true
+    }
+  ]
+}

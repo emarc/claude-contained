@@ -1,0 +1,305 @@
+{
+  "version_container-a": "codex-cli 0.153.4",
+  "version_container-b": "codex-cli 0.153.4",
+  "version_container-c": "codex-cli 0.153.4",
+  "all_markers_present": true,
+  "skill_discovered": true,
+  "initial-a": {
+    "marker": "container-a",
+    "commands": [
+      {
+        "status": "completed",
+        "output": "execution_system=Linux\n{\"system\": \"Linux\", \"container\": \"container-a\", \"cwd\": \"/private/tmp/codex-execution-probe-jzggfiyl/project\"}\n",
+        "exitCode": 0
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_b92b910638694c7da90435a7790cea1e",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 1
+      }
+    ]
+  },
+  "initial-b": {
+    "marker": "container-b",
+    "commands": [
+      {
+        "status": "completed",
+        "output": "execution_system=Linux\n{\"system\": \"Linux\", \"container\": \"container-b\", \"cwd\": \"/private/tmp/codex-execution-probe-jzggfiyl/project\"}\n",
+        "exitCode": 0
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_23ab5ce9f71d493ca599cbeeea628998",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 0
+      }
+    ]
+  },
+  "concurrent-a": {
+    "marker": "container-a",
+    "commands": [
+      {
+        "status": "completed",
+        "output": "execution_system=Linux\n{\"system\": \"Linux\", \"container\": \"container-a\", \"cwd\": \"/private/tmp/codex-execution-probe-jzggfiyl/project\"}\n",
+        "exitCode": 0
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_cb3c1ab0e0a24310a2562f272735409f",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 0
+      }
+    ]
+  },
+  "concurrent-b": {
+    "marker": "container-b",
+    "commands": [
+      {
+        "status": "completed",
+        "output": "execution_system=Linux\n{\"system\": \"Linux\", \"container\": \"container-b\", \"cwd\": \"/private/tmp/codex-execution-probe-jzggfiyl/project\"}\n",
+        "exitCode": 0
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_1e09386f11fc4106acd149074c802971",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 0
+      }
+    ]
+  },
+  "resumed-c": {
+    "marker": "container-c",
+    "commands": [
+      {
+        "status": "completed",
+        "output": "execution_system=Linux\n{\"system\": \"Linux\", \"container\": \"container-c\", \"cwd\": \"/private/tmp/codex-execution-probe-jzggfiyl/project\"}\n",
+        "exitCode": 0
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_860668f6012c44689eec4b0717c94bec",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 0
+      }
+    ]
+  },
+  "missing-environment": {
+    "marker": null,
+    "commands": [
+      {
+        "status": "failed",
+        "output": "execution_system=Darwin\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import json,pathlib,platform,time; time.sleep(1); print(\"execution_system=\"+platform.system(),flush=True); identity=pathlib.Path(\"/tmp/execution-probe-identity\").read_text(); assert platform.system()==\"Linux\", platform.system(); pathlib.Path('missing-environment.txt').write_text(identity); print(json.dumps({\"system\":platform.system(),\"container\":identity,\"cwd\":str(pathlib.Path.cwd())}))\n                                                                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py\", line 787, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py\", line 771, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/execution-probe-identity'\n",
+        "exitCode": 1
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_56699b22cd2e4e36809e4a7588eec697",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 0
+      }
+    ]
+  },
+  "resumed-after-backend-restart": {
+    "marker": "container-c",
+    "commands": [
+      {
+        "status": "completed",
+        "output": "execution_system=Linux\n{\"system\": \"Linux\", \"container\": \"container-c\", \"cwd\": \"/private/tmp/codex-execution-probe-jzggfiyl/project\"}\n",
+        "exitCode": 0
+      }
+    ],
+    "mcp": [
+      {
+        "type": "mcpToolCall",
+        "id": "call_403b8350f2694ef2ab08c59e862949c4",
+        "server": "probe_remote",
+        "tool": "prove_container",
+        "status": "failed",
+        "arguments": {},
+        "appContext": null,
+        "pluginId": null,
+        "readOnlyHint": null,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "[Errno 2] No such file or directory: '/tmp/execution-probe-identity'"
+            }
+          ],
+          "structuredContent": null,
+          "_meta": null
+        },
+        "error": null,
+        "durationMs": 0
+      }
+    ]
+  },
+  "final_history_01a08c32-416b-7d31-b62c-3c16580ea7d8": {
+    "historyMode": "paginated",
+    "turns": 5
+  },
+  "final_history_01a08c32-462f-7bf0-8665-884ff9f836cb": {
+    "historyMode": "paginated",
+    "turns": 2
+  },
+  "full_results": "/private/tmp/codex-execution-probe-jzggfiyl/results.json",
+  "concurrent_intervals_ms": {
+    "concurrent-a": {
+      "item/started": 1789058501459,
+      "item/completed": 1789058502357
+    },
+    "concurrent-b": {
+      "item/started": 1789058501462,
+      "item/completed": 1789058502356
+    }
+  },
+  "concurrent_overlap": true,
+  "integrity": {
+    "queue_1.sqlite": [
+      [
+        "ok"
+      ]
+    ],
+    "logs_2.sqlite": [
+      [
+        "ok"
+      ]
+    ],
+    "memories_1.sqlite": [
+      [
+        "ok"
+      ]
+    ],
+    "state_5.sqlite": [
+      [
+        "ok"
+      ]
+    ],
+    "thread_history_1.sqlite": [
+      [
+        "ok"
+      ]
+    ],
+    "goals_1.sqlite": [
+      [
+        "ok"
+      ]
+    ]
+  },
+  "missing_environment_executed_on_host": true
+}

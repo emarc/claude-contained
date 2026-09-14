@@ -1,0 +1,125 @@
+{
+  "full_results": "/private/tmp/codex-history-probe-e39v0gc7/results.json",
+  "checks": {
+    "legacy_start": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 0
+    },
+    "legacy_turn_start": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 0
+    },
+    "legacy_turn_completed": {
+      "status": "completed"
+    },
+    "legacy_inject": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 0
+    },
+    "create_legacy_thread/read": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 1
+    },
+    "create_legacy_thread/turns/list": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 1
+    },
+    "create_legacy_thread/resume": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 1
+    },
+    "create_legacy_thread/resume_exclude": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 0
+    },
+    "paginated_start": {
+      "ok": true,
+      "historyMode": "paginated",
+      "turns": 0
+    },
+    "paginated_turn_start": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 0
+    },
+    "paginated_turn_completed": {
+      "status": "completed"
+    },
+    "paginated_inject": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 0
+    },
+    "create_paginated_thread/read": {
+      "ok": true,
+      "historyMode": "paginated",
+      "turns": 1
+    },
+    "create_paginated_thread/turns/list": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 1
+    },
+    "create_paginated_thread/resume": {
+      "ok": true,
+      "historyMode": "paginated",
+      "turns": 1
+    },
+    "create_paginated_thread/resume_exclude": {
+      "ok": true,
+      "historyMode": "paginated",
+      "turns": 0
+    },
+    "reopen_legacy_thread/read": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 1
+    },
+    "reopen_legacy_thread/turns/list": {
+      "ok": true,
+      "historyMode": null,
+      "turns": 1
+    },
+    "reopen_legacy_thread/resume": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 1
+    },
+    "reopen_legacy_thread/resume_exclude": {
+      "ok": true,
+      "historyMode": "legacy",
+      "turns": 0
+    },
+    "reopen_paginated_thread/read": {
+      "error": {
+        "code": -32603,
+        "message": "failed to list thread history: thread-store internal error: failed to access thread history: error returned from database: (code: 11) database disk image is malformed"
+      }
+    },
+    "reopen_paginated_thread/turns/list": {
+      "error": {
+        "code": -32603,
+        "message": "failed to list thread history: thread-store internal error: failed to access thread history: error returned from database: (code: 11) database disk image is malformed"
+      }
+    },
+    "reopen_paginated_thread/resume": {
+      "error": {
+        "code": -32603,
+        "message": "failed to list thread history: thread-store internal error: failed to access thread history: error returned from database: (code: 11) database disk image is malformed"
+      }
+    },
+    "reopen_paginated_thread/resume_exclude": {
+      "error": {
+        "code": -32603,
+        "message": "failed to list thread history: thread-store internal error: failed to access thread history: error returned from database: (code: 11) database disk image is malformed"
+      }
+    }
+  }
+}

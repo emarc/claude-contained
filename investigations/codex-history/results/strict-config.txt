@@ -1,0 +1,1 @@
+Error: /private/tmp/codex-execution-probe-nahxh8gn/codex/config.toml:15:1: unknown configuration field `mcp_servers.probe_remote.experimental_environment`

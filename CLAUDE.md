@@ -57,11 +57,32 @@ claude-contained -N .
 - **Full path parity**: Directories mounted at their original host paths (e.g., `/Users/me/project` → `/Users/me/project`)
 - **HOME parity**: Container HOME matches host HOME for consistent behavior
 - **UID/GID matching**: Container user matches host user IDs for proper file permissions
-- **State sharing**: Tool configs (`~/.claude`, `~/.codex`, `~/.copilot`, `~/.gemini`, `~/.vibe`), Maven cache (`~/.m2`), and Vaadin state (`~/.vaadin`) bind-mounted from host
+- **State sharing**: Tool configs (`~/.claude`, `~/.copilot`, `~/.gemini`, `~/.vibe`), Maven cache (`~/.m2`), and Vaadin state (`~/.vaadin`) bind-mounted from host
 - **Rust state**: `~/.cargo` and `~/.rustup` are mounted from arch-tagged, container-only dirs (`~/.claude-contained/{cargo,rustup}-linux-<arch>`), never from the host's own — both hold platform-specific binaries, the container's `~/.cargo/bin` is prepended to `PATH`, and `rustup toolchain install` rewrites every proxy in `$CARGO_HOME/bin` (overwriting existing files), which would wreck a macOS Rust install. entrypoint.sh seeds the persisted `RUSTUP_HOME` by symlinking the image's baked toolchains into it (rustup accepts a symlinked toolchain dir as the real thing), prunes links left over from an older image, and re-seeds `settings.toml` if its `default_toolchain` disappeared with them. It also creates `$CARGO_HOME/bin/rustup`, without which rustup exits 1 after a successful `toolchain install` (`error: rustup is not installed at ...`) and breaks callers like dylint
-- **Shared skills**: `--share-skills=DIR` is opt-in, repeatable, and expands `~/`. The first source is mounted directly as each tool's skills directory, so new skills write there. Later sources' non-hidden, nonempty top-level skill directories are nested bind mounts; edits stay in their original source. Duplicate names fail unless the first source has an empty directory usable as a mountpoint. Empty host mountpoint directories are untracked by Git; never mount over nonempty directories, files, or symlinks. The startup summary shows all sources and targets, marking the first source as the destination for new skills. Codex gets a nested mount for host `~/.codex/skills/.system` to preserve built-ins. Keep both launchers in sync; regression coverage is in `tests/shared-skills.test.sh`.
+- **Shared skills**: `--share-skills=DIR` is opt-in, repeatable, and expands `~/`. The first source is mounted directly as each tool's skills directory, so new skills write there. Later sources' non-hidden, nonempty top-level skill directories are nested bind mounts; edits stay in their original source. Duplicate names fail unless the first source has an empty directory usable as a mountpoint. Empty host mountpoint directories are untracked by Git; never mount over nonempty directories, files, or symlinks. The startup summary shows all sources and targets, marking the first source as the destination for new skills. Codex gets a nested mount for its private home’s `skills/.system` to preserve built-ins. Keep both launchers in sync; regression coverage is in `tests/shared-skills.test.sh`.
 - **SSH agent forwarding**: Disabled by default for security; enable with `-S/--ssh` flag (required for `git push` to SSH remotes)
 - Host services accessible via `host.local` hostname (resolved from container gateway IP)
+
+### Codex isolation and ownership
+
+- `managed-launch.py` is the maintained host supervisor, embedded in both launchers
+  to preserve single-file installs. Regenerate with `python3 tests/embed-managed-launch.py`;
+  `--check` verifies parity. Host Python 3.9+ is required.
+- Native `~/.codex` is never mounted. Per-folder homes persist under
+  `~/.claude-contained/codex/projects/`; private setup is seeded once, without history.
+- Native host `flock` plus persisted runtime/token ownership excludes competing
+  containers; lock files are never unlinked. The child inherits the lock FD so
+  supervisor death during startup cannot release ownership early.
+- `codex-guard.py` is installed as `codex`; a root-owned readiness identity selects
+  the home. Its Docker-only lock is Linux-local `/run`, never a host bind mount.
+  Apple permits concurrent Codex processes. Docker permits only one per folder.
+- All tools offer same-folder reuse with explicit consent and compatible setup.
+  The supervisor handles explicit attach too; attached clients do not own cleanup.
+- Only `~/.claude-contained/shared` is mounted for Claude config/git identity.
+  Never restore the broad state-parent mount. New launchers require the image's
+  `managed-entrypoint.sh` and refuse legacy containers.
+- Tests: `tests/managed-launch.test.py`, existing shell suites, and the opt-in real
+  runtime `tests/managed-runtime.test.py` (disposable HOME and fake model).
 
 ### Notable Patterns
 
@@ -96,7 +117,7 @@ The `devcontainer/` directory provides a VS Code devcontainer configuration for 
 
 - Port forwarding not available for local MCPs (use `host.local` workaround)
 - Multiple simultaneous sessions share `~/.claude` state; concurrent writes may conflict (Claude Code limitation)
-- `~/.claude.json` is relocated to `~/.claude-contained/.claude.json` (with symlink at original location) to work around Apple Containers' inability to bind-mount individual files. Deleting `~/.claude-contained/` will lose credentials.
+- `~/.claude.json` is relocated to `~/.claude-contained/shared/.claude.json` (with symlink at original location) to work around Apple Containers' inability to bind-mount individual files. Deleting `~/.claude-contained/` will lose credentials.
 - Running `claude-contained` and regular `claude` simultaneously is not recommended (both access same config via different paths)
 - **node_modules overlay**: On macOS hosts, Node.js projects are prompted to create a `.claude-contained/node_modules-linux-<arch>/` directory that gets mounted over `node_modules` inside the container (since macOS native binaries don't work on Linux). You should manually add `.claude-contained/` to `.gitignore` if needed. Use `-N` to skip the prompt.
 - **Devcontainer limitation**: Don't run VS Code devcontainer and standalone scripts simultaneously on same `~/.claude` directory
