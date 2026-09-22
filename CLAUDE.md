@@ -70,6 +70,11 @@ claude-contained -N .
   `--check` verifies parity. Host Python 3.9+ is required.
 - Native `~/.codex` is never mounted. Per-folder homes persist under
   `~/.claude-contained/codex/projects/`; private setup is seeded once, without history.
+- Contained Codex auth is shared through the separately mounted
+  `~/.claude-contained/codex/auth` directory and an exact `auth.json` symlink.
+  Native auth seeds it once; legacy private credentials are backed up on migration.
+  Refreshes are not serialized across containers. The guard reconciles TUI auth
+  replacement/deletion on exit, and directs CLI logout to the shared cache.
 - Native host `flock` plus persisted runtime/token ownership excludes competing
   containers; lock files are never unlinked. The child inherits the lock FD so
   supervisor death during startup cannot release ownership early.

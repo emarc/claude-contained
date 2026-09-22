@@ -9,6 +9,7 @@ import tempfile
 import time
 import unittest
 from unittest.mock import patch
+from unittest.mock import Mock
 
 REPO = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location('managed', REPO / 'managed-launch.py')
@@ -221,6 +222,92 @@ class ManagedTests(unittest.TestCase):
             self.assertEqual(m.prepare_store(base,str(self.project)),store)
             self.assertEqual((store/'state_5.sqlite').read_text(),'retained')
 
+    def test_shared_auth_refresh_logout_and_migration(self):
+        native = self.home/'.codex'
+        native.mkdir()
+        (native/'auth.json').write_text('native credential')
+        base = self.home/'.claude-contained/codex'
+        with patch.dict(os.environ, HOME=str(self.home)):
+            first = m.prepare_store(base, str(self.project))
+            second = m.prepare_store(base, str(self.root/'another-project'))
+            self.assertTrue((first/'auth.json').is_symlink())
+            (first/'auth.json').write_text('refreshed credential')
+            self.assertEqual((second/'auth.json').read_text(), 'refreshed credential')
+            self.assertEqual((native/'auth.json').read_text(), 'native credential')
+            # CLI logout removes the target; relaunch must not reseed it.
+            (base/'auth/auth.json').unlink()
+            m.prepare_store(base, str(self.project))
+            self.assertFalse((first/'auth.json').exists())
+            (second/'auth.json').write_text('new login')
+            self.assertEqual((first/'auth.json').read_text(), 'new login')
+            # Migrate an old private cache without replacing shared credentials.
+            (first/'auth.json').unlink()
+            (first/'auth.json').write_text('old private credential')
+            m.prepare_store(base, str(self.project))
+            backups = list(first.glob('auth.json.before-sharing-*'))
+            self.assertEqual(len(backups), 1)
+            self.assertEqual(backups[0].read_text(), 'old private credential')
+            self.assertEqual((first/'auth.json').read_text(), 'new login')
+
+    def test_tui_logout_and_relogin_reconcile_shared_auth(self):
+        with patch.dict(os.environ, HOME=str(self.home)):
+            base = self.home/'.claude-contained/codex'
+            store = m.prepare_store(base, str(self.project))
+        shared = base/'auth'
+        (store/'auth.json').write_text('login')
+        (store/'auth.json').unlink()  # TUI logout deletes the link.
+        guard.reconcile_auth(store, shared)
+        self.assertFalse((shared/'auth.json').exists())
+        self.assertTrue((store/'auth.json').is_symlink())
+        (store/'auth.json').unlink()
+        (store/'auth.json').write_text('TUI relogin')
+        guard.reconcile_auth(store, shared)
+        self.assertTrue((store/'auth.json').is_symlink())
+        self.assertEqual((shared/'auth.json').read_text(), 'TUI relogin')
+
+    def test_shared_auth_can_migrate_private_credentials_without_native_login(self):
+        base = self.home/'.claude-contained/codex'
+        project = base/'projects'/m.key_for(str(self.project))
+        store = project/'home'
+        store.mkdir(parents=True)
+        m.atomic_json(project/'identity.json', {'format': 1, 'canonical_path': str(self.project)})
+        (store/'auth.json').write_text('existing private login')
+        with patch.dict(os.environ, HOME=str(self.home)):
+            m.prepare_store(base, str(self.project))
+        self.assertEqual((base/'auth/auth.json').read_text(), 'existing private login')
+        self.assertEqual(len(list(store.glob('auth.json.before-sharing-*'))), 1)
+
+    def test_guard_cli_logout_uses_shared_home_but_keeps_private_database(self):
+        private = self.home/'.codex'
+        shared = self.home/'.claude-contained/codex/auth'
+        private.mkdir()
+        shared.mkdir(parents=True)
+        (shared/'auth.json').write_text('fake credential')
+        (private/'auth.json').symlink_to(shared/'auth.json')
+        identity = self.root/'identity.json'
+        identity.write_text(json.dumps({'home': str(self.home), 'runtime': 'container'}))
+        lock = self.root/'codex.lock'
+        lock.touch()
+        real_open = open
+        def guard_open(path, *args, **kwargs):
+            return real_open(lock if path == '/run/claude-contained/codex.lock' else path, *args, **kwargs)
+        def guard_path(path):
+            return identity if path == '/run/claude-contained/identity.json' else Path(path)
+        def launch(command, env, **kwargs):
+            self.assertEqual(env['CODEX_HOME'], str(shared))
+            self.assertEqual(env['CODEX_SQLITE_HOME'], str(private))
+            self.assertIn('cli_auth_credentials_store="file"', command)
+            (Path(env['CODEX_HOME'])/'auth.json').unlink()
+            return Mock(wait=Mock(return_value=0))
+        with patch.object(guard, 'Path', side_effect=guard_path), \
+             patch('builtins.open', side_effect=guard_open), \
+             patch.object(guard.sys, 'argv', ['codex', 'logout']), \
+             patch.object(guard.subprocess, 'Popen', side_effect=launch), \
+             patch.object(guard.signal, 'signal'):
+            self.assertEqual(guard.main(), 0)
+        self.assertTrue((private/'auth.json').is_symlink())
+        self.assertFalse((shared/'auth.json').exists())
+
     def test_apple_reuse_arguments_decline_options_and_mounts(self):
         self.start()
         reply=self.launch('claude-contained','-y','-t','codex',self.project,'--','resume','abc','prompt with spaces')
@@ -242,6 +329,8 @@ class ManagedTests(unittest.TestCase):
         self.assertTrue(any('/codex/projects/' in x and x.endswith('/.codex') for x in mounts))
         self.assertFalse(any(x.startswith('type=bind,src='+str(self.home)+'/.codex,') for x in mounts))
         self.assertIn('type=bind,src='+str(self.home)+'/.claude-contained/shared,dst='+str(self.home)+'/.claude-contained',mounts)
+        auth_dir = str(self.home)+'/.claude-contained/codex/auth'
+        self.assertIn('type=bind,src='+auth_dir+',dst='+auth_dir, mounts)
 
     def test_docker_busy_refuses_codex_but_reuses_other_agents(self):
         self.start('claude-docked');(self.root/'busy').touch()

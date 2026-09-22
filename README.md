@@ -167,12 +167,27 @@ different stores. Additional mounted folders do not change history ownership.
 Pass the working folder to the launcher, rather than forwarding Codex `--cd`/`-C`.
 Moving a folder selects a new store; there is no automatic relocation or merge.
 
-On first use, `auth.json`, `config.toml`, `AGENTS.md`, skills, and plugins are copied
+On first use, `config.toml`, `AGENTS.md`, skills, and plugins are copied
 into the private home if present. Databases and transcripts are **not** copied.
-Subsequent setup and credential changes stay private to that folder. If native
-credentials were held in the macOS keychain rather than `auth.json`, log in inside
-the contained Codex session. File credentials and database paths are pinned to the
-private home. Database-location overrides and external state symlinks are refused.
+Subsequent setup changes stay private to that folder.
+
+Codex credentials are shared across contained projects in
+`~/.claude-contained/codex/auth/auth.json`. Only this small auth directory is
+mounted alongside each private home, whose `auth.json` links to the shared file.
+The shared cache is seeded once from native `~/.codex/auth.json`, or from the first
+migrated project's private credential if no native file exists. Native credentials
+are otherwise independent. If credentials exist only in the macOS keychain, sign
+in once inside contained Codex. Signing in in one project then covers all contained
+projects. Existing private auth files are retained as `auth.json.before-sharing-*`
+backups; they contain secrets. An empty shared cache after logout is never reseeded.
+
+This is a pragmatic concurrency tradeoff: simultaneous refreshes or reads during
+a JSON rewrite can still fail and require signing in again. History remains
+isolated. `codex logout` clears the shared cache for all contained projects; a TUI
+logout/relogin is reconciled when that Codex process exits normally. Prefer CLI
+logout after closing other sessions. Rebuild the image and restart containers when
+upgrading to shared auth. File credentials are forced, and database-location
+overrides and external state symlinks (except the exact auth link) are refused.
 Native CLI/Desktop can keep using native history independently. This does not
 repair previously damaged history; preserve an offline backup before recovery.
 

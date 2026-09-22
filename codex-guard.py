@@ -5,8 +5,26 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
+
+
+def reconcile_auth(home, shared):
+    """Codex logout unlinks the symlink; a subsequent login may replace it."""
+    auth = home / 'auth.json'
+    target = shared / 'auth.json'
+    if auth.is_symlink():
+        if os.readlink(auth) != str(target):
+            raise RuntimeError('Unexpected Codex auth symlink.')
+        return
+    if auth.is_file():
+        shutil.copyfile(auth, target)
+        target.chmod(0o600)
+        auth.unlink()
+    else:
+        target.unlink(missing_ok=True)
+    auth.symlink_to(target)
 
 
 def config_overrides(args):
@@ -53,9 +71,17 @@ def main():
                 raise RuntimeError('Docker permits only one Codex session per folder. Close the active Codex session first.')
         if args == ['--cc-check-idle']:
             return 0
+        shared = Path(identity['home']) / '.claude-contained/codex/auth'
+        if not shared.is_dir():
+            raise RuntimeError('Shared Codex auth is not mounted. Restart with the updated launcher.')
+        auth = home / 'auth.json'
+        if not auth.is_symlink() or os.readlink(auth) != str(shared / 'auth.json'):
+            raise RuntimeError('Shared Codex auth link is missing. Restart the managed container.')
         env = dict(os.environ, HOME=identity['home'], CODEX_HOME=str(home), CODEX_SQLITE_HOME=str(home))
-        # CLI overrides win over copied config/profile defaults. File credentials
-        # live in this private home, avoiding a shared credential refresh store.
+        # CLI logout must delete the shared file, rather than just its symlink.
+        if args == ['logout']:
+            env['CODEX_HOME'] = str(shared)
+        # The credential file is shared; history remains in the private home.
         command = ['/usr/local/bin/cc-codex-real', '-c', 'sqlite_home=' + json.dumps(str(home)),
                    '-c', 'cli_auth_credentials_store="file"', *args]
         child = subprocess.Popen(command, env=env, pass_fds=(lock.fileno(),))
@@ -64,7 +90,10 @@ def main():
                 child.send_signal(sig)
         for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
             signal.signal(sig, forward)
-        return child.wait()
+        try:
+            return child.wait()
+        finally:
+            reconcile_auth(home, shared)
 
 
 if __name__ == '__main__':

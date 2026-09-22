@@ -986,6 +986,32 @@ def is_codex_runtime_link(path, store):
         os.readlink(path)) is not None
 
 
+def prepare_auth(base, store):
+    """One contained credential cache; the host lock only serializes migration."""
+    shared = base / 'auth'
+    with (base / 'auth.lock').open('a') as mutex:
+        fcntl.flock(mutex, fcntl.LOCK_EX)
+        shared.mkdir(mode=0o700, exist_ok=True)
+        if shared.is_symlink() or shared.resolve() != shared:
+            fail('Shared Codex auth must not be redirected by symlinks.')
+        target = shared / 'auth.json'
+        if target.is_symlink():
+            fail('Shared Codex auth file must not be a symlink.')
+        auth = store / 'auth.json'
+        if auth.is_symlink() and os.readlink(auth) != str(target):
+            fail(f'Contained Codex home has an external symlink: {auth}')
+        if not (shared / 'initialized.json').exists():
+            for source in (Path(os.environ['HOME']) / '.codex/auth.json', auth):
+                if not target.exists() and source.is_file() and not source.is_symlink():
+                    shutil.copyfile(source, target)
+                    target.chmod(0o600)
+            atomic_json(shared / 'initialized.json', {'format': 1})
+        if not auth.is_symlink():
+            if auth.exists():
+                auth.rename(store / ('auth.json.before-sharing-' + uuid.uuid4().hex))
+            auth.symlink_to(target)
+
+
 def prepare_store(base, folder):
     project = base / 'projects' / key_for(folder)
     identity = {'format': 1, 'canonical_path': folder}
@@ -1004,7 +1030,7 @@ def prepare_store(base, folder):
         native = Path(os.environ['HOME']) / '.codex'
         # Private copies only. Never copy databases, sidecars, transcripts,
         # caches, sockets, or the current native runtime directory wholesale.
-        for name in ('auth.json', 'config.toml', 'AGENTS.md', 'skills', 'plugins'):
+        for name in ('config.toml', 'AGENTS.md', 'skills', 'plugins'):
             source = native / name
             if source.is_dir():
                 shutil.copytree(source, temporary / name, symlinks=False, ignore=ignore_dangling_links)
@@ -1015,10 +1041,13 @@ def prepare_store(base, folder):
         print(f'Created private Codex home for {folder}. History starts fresh; setup is copied once.', file=sys.stderr)
     if not store.is_dir() or store.is_symlink():
         fail('Invalid contained Codex home.')
+    prepare_auth(base, store)
     # Do not follow state symlinks into some other store, even after a prior run.
     for parent, dirs, files in os.walk(store):
         for name in dirs + files:
             p = Path(parent) / name
+            if p == store / 'auth.json' and p.is_symlink() and os.readlink(p) == str(base / 'auth/auth.json'):
+                continue
             if p.is_symlink() and not is_codex_runtime_link(p, store) and not p.resolve().is_relative_to(store):
                 fail(f'Contained Codex home has an external symlink: {p}')
     return store
@@ -1416,6 +1445,7 @@ fi
 # The supervisor migrates Claude's shared config under a host mutex. Mount
 # only this directory; mounting its parent would expose every Codex store/lock.
 container_argv+=( --mount "type=bind,src=${CC_SHARED_DIR},dst=${HOST_HOME}/.claude-contained" )
+container_argv+=( --mount "type=bind,src=${HOST_HOME}/.claude-contained/codex/auth,dst=${HOST_HOME}/.claude-contained/codex/auth" )
 
 # Build tool-specific command
 case "$tool" in
