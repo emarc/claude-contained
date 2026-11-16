@@ -74,7 +74,7 @@ The template forwards ports 8080 (web app) and 5005 (debug). Modify as needed:
 
 ### Using a Different Java Version
 
-The image includes JetBrains Runtime 25. To use a different JDK, you would need to modify the Dockerfile and rebuild the image.
+The image includes JetBrains Runtime 25 (what the Vaadin Dev Loop prefers for hot reload). To use a different JDK, you would need to modify the Dockerfile and rebuild the image. The host's `~/.vaadin/jdk` is masked with `~/.claude-contained/vaadin-jdk-devcontainer`, so the Dev Loop never picks a macOS JDK from it and JDKs installed in the container stay out of the host's directory.
 
 ## Limitations
 

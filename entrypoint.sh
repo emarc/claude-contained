@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# JBR as primary Java (with HotswapAgent support)
+# JBR as primary Java; the Vaadin Dev Loop finds it through JAVA_HOME
 export JAVA_HOME=/opt/jbr
 export PATH="/opt/claude:/home/dev/.sdkman/candidates/maven/current/bin:/home/dev/.sdkman/candidates/jbang/current/bin:$JAVA_HOME/bin:$PATH"
 
@@ -54,7 +54,8 @@ if [ -n "${HOST_HOME:-}" ]; then
 
   chown dev:dev "${HOST_HOME}" 2>/dev/null || true
   chown -R dev:dev "${HOST_HOME}/.claude" 2>/dev/null || true
-  chown -R dev:dev /ms-playwright 2>/dev/null || true
+  # Browser cache: the persisted mount, or the image dir after the UID change
+  chown dev:dev /ms-playwright 2>/dev/null || true
 
   export HOME="${HOST_HOME}"
 

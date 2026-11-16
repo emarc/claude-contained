@@ -37,6 +37,7 @@ Behavior:
   - Existing same-folder containers require confirmation before reuse.
   - Apple allows concurrent Codex sessions in the owning container.
   - Rust state (~/.cargo, ~/.rustup) is bind-mounted from container-specific dirs under ~/.claude-contained (Linux binaries differ from the host's).
+  - ~/.vaadin/jdk and the Playwright browser cache (/ms-playwright) are mounted the same way, so the Vaadin Dev Loop never picks a host (macOS) JDK.
   - --share-skills=DIR mounts DIR as each tool's skills directory.
     Repeat to combine top-level skill directories; duplicate names are errors.
     Edits write to the source; new skills go to the first shared directory.
@@ -145,15 +146,100 @@ find_build_context() {
   return 1
 }
 
+# Every file the image is built from: the Dockerfile COPYs the others. Their hash
+# is stored as an image label so a stale image gets noticed, both right after a
+# rebuild and at every launch. Apple's `container` has kept an older copy under
+# the same short name, which `run` went on resolving to after a successful build.
+IMAGE_SOURCE_LABEL="io.claude-contained.source"
+IMAGE_SOURCE_FILES=(Dockerfile custom-packages.txt install-rust-tools.sh entrypoint.sh codex-guard.py)
+
+sha256_of_stdin() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum | cut -d' ' -f1
+  else
+    shasum -a 256 | cut -d' ' -f1
+  fi
+}
+
+# Short hash over the image's source files in a build context.
+image_source_hash() {
+  local context="$1" file
+  for file in "${IMAGE_SOURCE_FILES[@]}"; do
+    [[ -f "$context/$file" ]] || continue
+    printf '%s %s\n' "$file" "$(sha256_of_stdin < "$context/$file")"
+  done | sha256_of_stdin | cut -c1-16
+}
+
+# Prints an image's source label (empty when it has none); fails when the image
+# cannot be inspected. The label is searched for anywhere in the inspect JSON,
+# whose layout differs between Apple's `container` and Docker.
+image_source_label() {
+  local json
+  json="$(container image inspect "$1" 2>/dev/null)" || return 1
+  printf '%s' "$json" | python3 -c '
+import json, sys
+def find(node):
+    if isinstance(node, dict):
+        value = node.get(sys.argv[1])
+        if isinstance(value, str):
+            return value
+        node = list(node.values())
+    if isinstance(node, list):
+        for item in node:
+            found = find(item)
+            if found:
+                return found
+    return ""
+try:
+    print(find(json.load(sys.stdin)))
+except ValueError:
+    pass
+' "$IMAGE_SOURCE_LABEL" 2>/dev/null || true
+}
+
+# After a successful build, the name the launcher runs must resolve to that build.
+verify_rebuilt_image() {
+  local expected="$1" actual
+  actual="$(image_source_label claude-contained:latest)" || actual=""
+  if [[ "$actual" == "$expected" ]]; then
+    echo "claude-contained:latest is up to date (sources ${expected})." >&2
+    return 0
+  fi
+  echo "error: the build succeeded, but claude-contained:latest resolves to a different image" >&2
+  echo "  (sources ${actual:-unlabeled}, expected ${expected}). An older copy is shadowing the new one;" >&2
+  echo "  remove it and rebuild: container image delete claude-contained:latest && claude-contained --rebuild" >&2
+  return 1
+}
+
+# Warns, never blocks, when the image was built from other sources than this
+# checkout. Skipped for a CLAUDE_CONTAINED_IMAGE override, a launcher outside a
+# checkout (nothing to compare with), and a missing image (the run reports that).
+check_image_freshness() {
+  local image="$1" context expected actual
+  [[ -z "${CLAUDE_CONTAINED_IMAGE:-}" ]] || return 0
+  context="$(find_build_context)" || return 0
+  actual="$(image_source_label "$image")" || return 0
+  expected="$(image_source_hash "$context")"
+  if [[ -z "$actual" || "$actual" == unknown ]]; then
+    echo "note: ${image} has no source label, so it cannot be checked against this checkout;" >&2
+    echo "  run 'claude-contained --rebuild' once to add it." >&2
+  elif [[ "$actual" != "$expected" ]]; then
+    echo "warning: ${image} was built from other sources than this checkout (image ${actual}, checkout ${expected})." >&2
+    echo "  Run 'claude-contained --rebuild'. If the warning persists, an older copy is shadowing the new image:" >&2
+    echo "  'container image delete ${image}', then rebuild." >&2
+  fi
+}
+
 run_rebuild() (
   local mode="$1"
-  local build_context refresh_token build_file source_bytes build_bytes
+  local build_context refresh_token build_file source_bytes build_bytes source_hash
 
   build_context="$(find_build_context)" || {
     echo "Rebuild requires a repo-adjacent install with Dockerfile access." >&2
     echo "Place claude-contained in this repo checkout (or symlink to it) and retry." >&2
     exit 1
   }
+  source_hash="$(image_source_hash "$build_context")"
 
   # Keep the build request below Apple Container's transport limit (#735).
   # Preserve parser directives and shebangs. Once a heredoc starts, retain
@@ -178,8 +264,10 @@ run_rebuild() (
     tools)
       refresh_token="$(date -u +%Y%m%d%H%M%S)"
       echo "Rebuilding claude-contained image (AI tools refresh)..." >&2
-      if container build --file "$build_file" --build-arg "AI_TOOLS_CACHE_BUST=${refresh_token}" -t claude-contained:latest "$build_context"; then
-        return 0
+      if container build --file "$build_file" --build-arg "AI_TOOLS_CACHE_BUST=${refresh_token}" \
+          --build-arg "CC_SOURCE_HASH=${source_hash}" -t claude-contained:latest "$build_context"; then
+        verify_rebuilt_image "$source_hash"
+        return
       fi
       echo "AI tools refresh failed. Retrying with full rebuild..." >&2
       run_rebuild full
@@ -187,7 +275,9 @@ run_rebuild() (
       ;;
     full)
       echo "Rebuilding claude-contained image (full fresh rebuild)..." >&2
-      container build --file "$build_file" --pull --no-cache -t claude-contained:latest "$build_context"
+      container build --file "$build_file" --pull --no-cache \
+        --build-arg "CC_SOURCE_HASH=${source_hash}" -t claude-contained:latest "$build_context"
+      verify_rebuilt_image "$source_hash"
       ;;
     *)
       echo "Unknown rebuild mode: $mode" >&2
@@ -749,6 +839,29 @@ check_for_updates() {
 # Use the first source as the writable root, then mount additional skills below
 # it. Empty directories in the first source are safe mountpoints (including
 # those created by previous launches); never hide files, links, or nonempty dirs.
+# Arch-tagged, container-only state that shadows host paths holding macOS binaries.
+# ~/.vaadin itself stays shared (the Dev Loop's HotswapAgent cache is portable), but
+# ~/.vaadin/jdk is where the Vaadin IDE plugins install JetBrains Runtimes, and the
+# Dev Loop daemon ranks every JDK there without checking its OS: a macOS JBR would
+# win for a Java 21 project and fail to exec. Masking it leaves the daemon with the
+# image's JBR (JAVA_HOME) and keeps Linux JDKs out of the host's directory. Playwright
+# browsers persist the same way, so each revision downloads once, not per run.
+add_platform_state_mounts() {
+  local home="$1"
+  local platform="linux-$(container_arch)"
+  local vaadin_jdk="${home}/.claude-contained/vaadin-jdk-${platform}"
+  local browsers="${home}/.claude-contained/ms-playwright-${platform}"
+
+  mkdir -p "$vaadin_jdk" "$browsers"
+  if [[ -L "${home}/.vaadin/jdk" ]] || { [[ -e "${home}/.vaadin/jdk" ]] && [[ ! -d "${home}/.vaadin/jdk" ]]; }; then
+    echo "warning: ~/.vaadin/jdk is not a directory; the Vaadin Dev Loop may pick a host JDK" >&2
+  else
+    mkdir -p "${home}/.vaadin/jdk"
+    container_argv+=( --mount "type=bind,src=${vaadin_jdk},dst=${home}/.vaadin/jdk" )
+  fi
+  container_argv+=( --mount "type=bind,src=${browsers},dst=/ms-playwright" )
+}
+
 prepare_shared_skills() {
   share_skills_dir=""
   shared_skill_names=()
@@ -1388,6 +1501,8 @@ container_argv=(
   --mount "type=bind,src=${main_host},dst=${main_host}"
 )
 
+add_platform_state_mounts "$HOST_HOME"
+
 prepare_shared_skills
 
 if [[ -n "$share_skills_dir" ]]; then
@@ -1524,6 +1639,8 @@ fi
 if [[ ${#tool_args[@]} -gt 0 ]]; then
   tool_argv+=( "${tool_args[@]}" )
 fi
+
+check_image_freshness claude-contained:latest
 
 # Run container
 if [[ $shell_mode -eq 1 ]]; then

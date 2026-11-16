@@ -1,16 +1,14 @@
-# Claude Code + JetBrains Runtime (JBR) + HotswapAgent (always on) + Python
+# Claude Code + JetBrains Runtime (JBR, for the Vaadin Dev Loop) + Python
 FROM node:24-bookworm-slim
 
 # ---- JBR pins ---------------------------------------------------------------
 # Use the jbrsdk flavor (full JDK) so developer tools like javac/javap/jar are
-# available; the plain "jbr" flavor is runtime-only and omits them.
-ARG JBR_VERSION=25.0.1
-ARG JBR_BUILD=b268.52
+# available; the plain "jbr" flavor is runtime-only and omits them. A JBR is what
+# lets the Vaadin Dev Loop hot-swap structural changes instead of restarting.
+ARG JBR_VERSION=25.0.4.1
+ARG JBR_BUILD=b329.142
 ARG JBR_FLAVOR=jbrsdk
 ARG JBR_BASE_URL=https://cache-redirector.jetbrains.com/intellij-jbr
-
-# ---- HotswapAgent pin (Maven Central) ---------------------------------------
-ARG HOTSWAP_AGENT_VERSION=2.0.3
 
 # ---- Eclipse JDT Language Server pin ----------------------------------------
 ARG JDTLS_VERSION=1.60.0
@@ -67,35 +65,10 @@ RUN set -eux; \
 ENV JAVA_HOME=/opt/jbr
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# ---- Install HotswapAgent ---------------------------------------------------
-RUN set -eux; \
-    mkdir -p /opt/jbr/lib/hotswap; \
-    curl -fL \
-      "https://repo1.maven.org/maven2/org/hotswapagent/hotswap-agent/${HOTSWAP_AGENT_VERSION}/hotswap-agent-${HOTSWAP_AGENT_VERSION}.jar" \
-      -o /opt/jbr/lib/hotswap/hotswap-agent.jar
-
-# ---- HotswapAgent global configuration --------------------------------------
-COPY hotswap-agent.properties /opt/jbr/lib/hotswap/hotswap-agent.properties
-
-# HotSwap always on (JBR 17/21/25) - requires G1 or Serial GC
-# --add-opens flags enable deep reflection for HotswapAgent class redefinition
-ENV JAVA_TOOL_OPTIONS="\
-  -XX:+UseG1GC \
-  -XX:+AllowEnhancedClassRedefinition \
-  -XX:+ClassUnloading \
-  -XX:HotswapAgent=fatjar \
-  --add-opens=java.base/java.lang=ALL-UNNAMED \
-  --add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
-  --add-opens=java.base/java.io=ALL-UNNAMED \
-  --add-opens=java.base/sun.nio.ch=ALL-UNNAMED \
-  --add-opens=java.base/sun.security.action=ALL-UNNAMED \
-  --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED \
-  --add-opens=java.desktop/java.beans=ALL-UNNAMED \
-  --add-opens=java.desktop/com.sun.beans=ALL-UNNAMED \
-  --add-opens=java.desktop/com.sun.beans.introspect=ALL-UNNAMED \
-  --add-opens=java.desktop/com.sun.beans.util=ALL-UNNAMED \
-  -Dvaadin.productionMode=false \
-  -Dspring.devtools.restart.enabled=false"
+# No HotswapAgent or JAVA_TOOL_OPTIONS here: the Vaadin Dev Loop picks the JBR,
+# provisions its own pinned HotswapAgent (~/.vaadin/devloop) and passes the agent
+# flags to the app only. A global agent loaded a second HotswapAgent into every
+# JVM, the Dev Loop's app included, and double-instrumented its classes.
 
 # ---- Eclipse JDT Language Server (jdtls) ------------------------------------
 RUN set -eux; \
@@ -254,27 +227,29 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
   && /root/.local/bin/uv tool install mistral-vibe --python 3.12 \
   && chmod -R a+rX /opt/uv-tools /opt/uv-python
 
-# ---- Playwright browser (build-time install for reliability) ----------------
-# Install Chromium to a fixed location instead of user cache for container use
+# ---- Google Chrome + Playwright browser cache --------------------------------
+# Official Chrome stable (amd64, and arm64 since 2026) at /opt/google/chrome:
+# Playwright's "chrome" channel -- the @playwright/mcp default -- uses it with any
+# Playwright version, so the MCP never downloads a browser. Browsers a project's
+# own Playwright wants go to PLAYWRIGHT_BROWSERS_PATH, which the launchers mount
+# from a persisted, arch-tagged host dir, so each revision downloads only once.
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-RUN npx playwright@1.61.0 install --with-deps chromium chromium-headless-shell
-
-# ---- Chrome wrapper for Playwright MCP compatibility ------------------------
-# When projects use @playwright/mcp without --browser flag, it looks for Chrome.
-# This wrapper redirects to our installed Playwright Chromium.
-RUN mkdir -p /opt/google/chrome && cat <<'EOF' > /opt/google/chrome/chrome
-#!/bin/bash
-exec /ms-playwright/chromium-*/chrome-linux/chrome --no-sandbox "$@"
-EOF
-RUN chmod +x /opt/google/chrome/chrome
+RUN set -eux; \
+    curl -fsSLo /tmp/chrome.deb \
+      "https://dl.google.com/linux/direct/google-chrome-stable_current_$(dpkg --print-architecture).deb"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends /tmp/chrome.deb; \
+    rm -rf /tmp/chrome.deb /var/lib/apt/lists/*; \
+    /opt/google/chrome/chrome --version; \
+    mkdir -p /ms-playwright
 
 # ---- Chromium + ChromeDriver for Selenium/TestBench ------------------------
 # Selenium/TestBench need a chromedriver whose major version matches the browser.
 # Google's "Chrome for Testing" only publishes chromedriver for linux64 (x86-64)
 # — there is no Linux/arm64 build — so it cannot be used on Apple Silicon. Debian
 # ships a version-matched `chromium` + `chromium-driver` pair for both amd64 and
-# arm64, so we use those. Playwright's Chromium (driven by the MCP wrapper above)
-# is left untouched. Both `chrome` and `chromedriver` are exposed on PATH via
+# arm64, so we use those; Google Chrome (above) stays at its own path. Both
+# `chrome` (this Chromium) and `chromedriver` are exposed on PATH via
 # /usr/local/bin so tools find them without extra configuration.
 RUN set -eux; \
     apt-get update; \
@@ -346,3 +321,8 @@ WORKDIR /work
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["claude"]
+
+# Hash of the files this image is built from, passed by `--rebuild`; the launchers
+# compare it with their checkout to notice a stale image
+ARG CC_SOURCE_HASH=unknown
+LABEL io.claude-contained.source="${CC_SOURCE_HASH}"

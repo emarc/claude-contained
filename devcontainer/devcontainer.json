@@ -12,19 +12,24 @@
     "source=${localEnv:HOME}/.claude-contained,target=${localEnv:HOME}/.claude-contained,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.m2,target=${localEnv:HOME}/.m2,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.vaadin,target=${localEnv:HOME}/.vaadin,type=bind,consistency=cached",
+    // Hide the host's (macOS) JDKs from the Vaadin Dev Loop and keep the Linux JBR
+    // the Vaadin extension downloads out of the host's ~/.vaadin/jdk
+    "source=${localEnv:HOME}/.claude-contained/vaadin-jdk-devcontainer,target=${localEnv:HOME}/.vaadin/jdk,type=bind",
     "source=${localEnv:HOME}/.gitconfig,target=${localEnv:HOME}/.gitconfig,type=bind,readonly"
   ],
 
   "containerEnv": {
     "DEVCONTAINER": "true",
     "HOME": "${localEnv:HOME}",
-    "JAVA_HOME": "/opt/jbr",
-    "JAVA_TOOL_OPTIONS": ""
+    "JAVA_HOME": "/opt/jbr"
   },
 
   "remoteEnv": {
     "PATH": "/opt/claude:/opt/jbr/bin:${containerEnv:PATH}"
   },
+
+  // Bind mount sources must exist before the container starts
+  "initializeCommand": "mkdir -p \"$HOME/.claude-contained/vaadin-jdk-devcontainer\" \"$HOME/.vaadin/jdk\"",
 
   "remoteUser": "dev",
   "overrideCommand": true,
@@ -43,7 +48,7 @@
       ],
       "settings": {
         "java.jdt.ls.java.home": "/opt/jbr",
-        "java.jdt.ls.vmargs": "-XX:+UseG1GC -XX:HotswapAgent=disabled -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
+        "java.jdt.ls.vmargs": "-XX:+UseG1GC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
         "java.configuration.runtimes": [
           { "name": "JavaSE-25", "path": "/opt/jbr", "default": true }
         ],
