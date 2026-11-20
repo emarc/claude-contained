@@ -28,8 +28,9 @@ Options:
 
 Behavior:
   - If no directories are provided, defaults to the current directory.
-  - Unrecognised options (e.g. --resume ID) and everything after them are passed to the tool,
-    as is everything after --. Directory arguments must come before them.
+  - Launcher options and directories may be mixed in any order. The first unrecognised
+    option (e.g. --resume ID) and everything after it are passed to the tool, as is
+    everything after --. Directories and launcher options must come before them.
   - Directories are mounted at their original host paths for full path parity.
   - Additional directories are automatically added via --add-dir (claude, codex only).
   - Append :ro to an extra dir to mount it read-only (or :rw to force read-write).
@@ -310,7 +311,13 @@ share_skills_dir=""
 share_skills_dirs=()
 port_maps=()
 host_forwards=()
-while [[ "${1:-}" == -* ]]; do
+# Launcher options and directories may be mixed in any order. The first "--",
+# or the first option the launcher doesn't recognise (e.g. "--resume <id>"),
+# starts the tool arguments: everything from there on goes to the tool, so a
+# tool flag like -p after it is never taken as a launcher flag.
+paths=()
+tool_args=()
+while [[ $# -gt 0 ]]; do
   case "${1:-}" in
     -h|--help)
       show_help
@@ -398,8 +405,18 @@ while [[ "${1:-}" == -* ]]; do
         shift
       fi
       ;;
-    *)
+    --)
+      shift
+      tool_args=("$@")
       break
+      ;;
+    -*)
+      tool_args=("$@")
+      break
+      ;;
+    *)
+      paths+=("$1")
+      shift
       ;;
   esac
 done
@@ -431,27 +448,6 @@ if [[ "$rebuild_mode" != "none" ]]; then
   run_rebuild "$rebuild_mode"
   exit 0
 fi
-
-# Split directories vs tool args. Tool args start after "--", or at the first
-# argument that looks like an option (e.g. "--resume <id>"), which the flag
-# parser above didn't recognise; from there on everything goes to the tool.
-paths=()
-tool_args=()
-seen_sep=0
-for a in "$@"; do
-  if [[ $seen_sep -eq 0 ]]; then
-    if [[ "$a" == "--" ]]; then
-      seen_sep=1
-      continue
-    fi
-    if [[ "$a" != -* ]]; then
-      paths+=("$a")
-      continue
-    fi
-    seen_sep=1
-  fi
-  tool_args+=("$a")
-done
 
 explicit_paths=0
 [[ ${#paths[@]} -gt 0 ]] && explicit_paths=1

@@ -94,7 +94,7 @@ claude-contained -N .
 - Path resolution prioritizes Python3 for reliability, with multiple fallbacks
 - Entrypoint dynamically adjusts UID/GID to match host user (handles conflicts)
 - Strict bash error handling with `set -euo pipefail`
-- `--` separator distinguishes directory arguments from tool arguments; an option the flag parser doesn't recognise (e.g. `--resume ID`) also starts the tool arguments, so it is never mounted as a path. Coverage: `tests/tool-args.test.sh`.
+- Launcher options and directory arguments may be mixed in any order; the first `--`, or the first option the launcher doesn't recognise (e.g. `--resume ID`), starts the tool arguments, and everything after it goes to the tool, even flags the launcher also has (`-p`, `-y`, ...). This keeps aliases like `claude=claude-contained --yolo` working with tool-native flags. Coverage: `tests/tool-args.test.sh`.
 - `-t/--tool` flag selects which AI tool to run; `-y/--yolo` maps to tool-specific permission flags; `-N/--contained-node-modules` auto-accepts the node_modules overlay prompt
 - Only Claude and Codex support `--add-dir` for extra directories; others just get mounts
 - **Container naming**: Both scripts use the `aic-` prefix for container names. Auto-generated names follow the pattern `aic-{folder}-{HHMM}` (e.g., `aic-my-app-1423`). If a container with that name already exists, a numeric suffix is appended (`aic-my-app-1423-2`, `-3`, etc.). Custom names via `-a` also use the `aic-` prefix.
